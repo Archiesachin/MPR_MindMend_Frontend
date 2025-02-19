@@ -50,6 +50,10 @@ const Signin = () => {
 //     }
 //   };
 
+const handleLogin = async() =>{
+    router.push("/home")
+}
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
@@ -69,7 +73,7 @@ const Signin = () => {
             />
             <UserTextInput placeholder="Password" isPass={true} setStateValue={setPassword} />
 
-            <TouchableOpacity  style={styles.signInButton}>
+            <TouchableOpacity onPress={handleLogin} style={styles.signInButton}>
               <Text style={styles.signInText}>Sign In</Text>
             </TouchableOpacity>
 

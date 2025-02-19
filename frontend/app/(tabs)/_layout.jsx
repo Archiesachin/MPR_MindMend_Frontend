@@ -1,7 +1,8 @@
 import { Text, View, Image, StyleSheet } from 'react-native';
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { icons } from '../../constants/icons';
+import home from '../../assets/icons/home.png'
+import profile from '../../assets/icons/profile.png'
 
 const TabIcon = ({ icon, color, name, focused }) => {
     return (
@@ -33,7 +34,7 @@ const TabsLayout = () => {
                     headerShown: false,
                     tabBarIcon: ({ color, focused }) => (
                         <TabIcon
-                            icon={icons.home}
+                            icon={home}
                             color={color}
                             name='Home'
                             focused={focused}
@@ -49,7 +50,7 @@ const TabsLayout = () => {
                     headerShown: false,
                     tabBarIcon: ({ color, focused }) => (
                         <TabIcon
-                            icon={icons.profile}
+                            icon={profile}
                             color={color}
                             name='Profile'
                             focused={focused}
@@ -58,10 +59,10 @@ const TabsLayout = () => {
                 }}
             />
 
-            <Tabs.Screen name='journal' options={{ tabBarButton: () => null, headerShown: false }} />
+            {/* <Tabs.Screen name='journal' options={{ tabBarButton: () => null, headerShown: false }} />
             <Tabs.Screen name='todo' options={{ tabBarButton: () => null, headerShown: false }} />
             <Tabs.Screen name='games' options={{ tabBarButton: () => null, headerShown: false }} />
-            <Tabs.Screen name='breathingBubble' options={{ tabBarButton: () => null, headerShown: false }} />
+            <Tabs.Screen name='breathingBubble' options={{ tabBarButton: () => null, headerShown: false }} /> */}
         </Tabs>
     );
 };
@@ -70,17 +71,18 @@ const styles = StyleSheet.create({
     iconContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 2,
+        textAlign:'center',
+        
     },
     icon: {
-        width: 24,
-        height: 24,
+        width: 20,
+        height: 20,
     },
     iconText: {
-        fontSize: 12,
+        fontSize: 10,
     },
     tabBar: {
-        height: 70,
+        height: 50,
     }
 });
 
