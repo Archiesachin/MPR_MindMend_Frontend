@@ -1,20 +1,20 @@
-import { Text, View, TextInput, TouchableOpacity } from 'react-native'
-import React, { useLayoutEffect, useState } from 'react'
-import { Entypo, MaterialIcons } from '@expo/vector-icons'
+import { Text, View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useLayoutEffect, useState } from 'react';
+import { Entypo, MaterialIcons } from '@expo/vector-icons';
 
 const UserTextInput = ({ placeholder, isPass, setStateValue, setGetEmailValidationStatus }) => {
     const [value, setValue] = useState("");
     const [showPass, setShowPass] = useState(true);
     const [icon, setIcon] = useState(null);
-    const [isEmailValid, setIsEmailValid] = useState(true); // Initial state is valid
+    const [isEmailValid, setIsEmailValid] = useState(true);
 
     const handleTextChange = (text) => {
-        setValue(text); // Update local state with the new text
-        setStateValue(text); // Use the new text for the external state
+        setValue(text);
+        setStateValue(text);
 
         if (placeholder === 'Email') {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const status = emailRegex.test(text); // Validate the new text
+            const status = emailRegex.test(text);
             setIsEmailValid(status);
             setGetEmailValidationStatus(status);
         }
@@ -23,32 +23,30 @@ const UserTextInput = ({ placeholder, isPass, setStateValue, setGetEmailValidati
     useLayoutEffect(() => {
         switch (placeholder) {
             case "Full Name":
-                return setIcon("person");
+                setIcon("person");
+                break;
             case "Email":
-                return setIcon("email");
+                setIcon("email");
+                break;
             case "Password":
-                return setIcon("lock");
+                setIcon("lock");
+                break;
             case "Age":
-                return setIcon("face");
+                setIcon("face");
+                break;
             case "Phone Number":
-                return setIcon("phone");
-            
+                setIcon("phone");
+                break;
             default:
-                return;
+                break;
         }
     }, []);
 
     return (
-        <View
-            className={`border rounded-2xl px-4 py-6 flex-row items-center justify-between space-x-4 my-2 ${
-                !isEmailValid && placeholder == "Email" && value.length > 0
-                    ? "border-red-500"
-                    : "border-gray-200"
-            }`}
-        >
+        <View style={[styles.inputContainer, !isEmailValid && placeholder === "Email" && value.length > 0 ? styles.invalidInput : styles.validInput]}>
             <MaterialIcons name={icon} size={24} color={"#6c6d83"} />
             <TextInput
-                className="flex-1 text-base text-primary font-semibold -mt-1"
+                style={styles.textInput}
                 placeholder={placeholder}
                 value={value}
                 onChangeText={handleTextChange}
@@ -57,11 +55,36 @@ const UserTextInput = ({ placeholder, isPass, setStateValue, setGetEmailValidati
             />
             {isPass && (
                 <TouchableOpacity onPress={() => setShowPass(!showPass)}>
-                    <Entypo name={`${showPass ? "eye" : "eye-with-line"}`} size={24} color={"#6c6d83"} />
+                    <Entypo name={showPass ? "eye" : "eye-with-line"} size={24} color={"#6c6d83"} />
                 </TouchableOpacity>
             )}
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    inputContainer: {
+        borderWidth: 1,
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginVertical: 8,
+    },
+    validInput: {
+        borderColor: 'gray',
+    },
+    invalidInput: {
+        borderColor: 'red',
+    },
+    textInput: {
+        flex: 1,
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#000',
+    },
+});
 
 export default UserTextInput;

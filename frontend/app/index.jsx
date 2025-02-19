@@ -18,7 +18,7 @@ export default function App() {
         autoPlay
         loop={false}
         onAnimationFinish={() => {
-          router.push("/sign-in");  // Check if the user is logged in after animation finishes
+          router.push("/sign-up");  // Check if the user is logged in after animation finishes
         }}
       />
     </View>
