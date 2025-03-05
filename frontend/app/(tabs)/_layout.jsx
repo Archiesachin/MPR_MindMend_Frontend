@@ -59,10 +59,7 @@ const TabsLayout = () => {
                 }}
             />
 
-            {/* <Tabs.Screen name='journal' options={{ tabBarButton: () => null, headerShown: false }} />
-            <Tabs.Screen name='todo' options={{ tabBarButton: () => null, headerShown: false }} />
-            <Tabs.Screen name='games' options={{ tabBarButton: () => null, headerShown: false }} />
-            <Tabs.Screen name='breathingBubble' options={{ tabBarButton: () => null, headerShown: false }} /> */}
+         
         </Tabs>
     );
 };
@@ -82,7 +79,8 @@ const styles = StyleSheet.create({
         fontSize: 10,
     },
     tabBar: {
-        height: 50,
+        height: 70,
+        paddingTop:15,
     }
 });
 
