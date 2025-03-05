@@ -3,6 +3,7 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import home from '../../assets/icons/home.png'
 import profile from '../../assets/icons/profile.png'
+import play from '../../assets/icons/play.png'
 
 const TabIcon = ({ icon, color, name, focused }) => {
     return (
@@ -53,6 +54,22 @@ const TabsLayout = () => {
                             icon={profile}
                             color={color}
                             name='Profile'
+                            focused={focused}
+                        />
+                    )
+                }}
+            />
+
+<Tabs.Screen
+                name='games'
+                options={{
+                    title: 'Games',
+                    headerShown: false,
+                    tabBarIcon: ({ color, focused }) => (
+                        <TabIcon
+                            icon={play}
+                            color={color}
+                            name='Games'
                             focused={focused}
                         />
                     )

@@ -37,6 +37,23 @@ const Home = () => {
     setMessages((prev) => [...prev, userMessage]);
     socket.emit("message", userMessage);
     setInput("");
+
+    // Set a timeout to check if the bot responds
+    const botResponseTimeout = setTimeout(() => {
+      const botResponse = {
+        text: "I'm currently unavailable. Please try again later.",
+        sender: "bot",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        avatar: botAvatar,
+      };
+
+      setMessages((prev) => [...prev, botResponse]);
+    }, 5000); // 5 seconds delay
+
+    socket.on("message", (botMessage) => {
+      clearTimeout(botResponseTimeout); // Clear timeout if bot responds
+      setMessages((prev) => [...prev, botMessage]);
+    });
   };
 
   const renderItem = ({ item }) => (
@@ -126,9 +143,9 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end" 
   },
   avatar: {
-    width: 20,
-    height: 20,
-    borderRadius: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 15,
     marginHorizontal: 5,
   },
   inputContainer: {
