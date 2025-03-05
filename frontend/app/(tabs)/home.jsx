@@ -71,7 +71,7 @@ const Home = () => {
       </View>
       {/* Show User Avatar */}
       {item.sender === "user" && (
-        <Image source={userAvatar} style={styles.avatar} />
+        <Image source={userAvatar} style={styles.useravatar} />
       )}
     </View>
   );
@@ -106,7 +106,7 @@ const Home = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
-  chatContainer: { padding: 10, marginTop: 70 },
+  chatContainer: { padding: 10, marginTop: 20 },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -145,6 +145,12 @@ const styles = StyleSheet.create({
   avatar: {
     width: 50,
     height: 50,
+    borderRadius: 15,
+    marginHorizontal: 5,
+  },
+  useravatar: {
+    width: 30,
+    height: 30,
     borderRadius: 15,
     marginHorizontal: 5,
   },
