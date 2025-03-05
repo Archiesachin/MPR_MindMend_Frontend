@@ -76,6 +76,22 @@ const TabsLayout = () => {
                 }}
             />
 
+<Tabs.Screen
+                name='journals'
+                options={{
+                    title: 'Journal',
+                    headerShown: false,
+                    tabBarIcon: ({ color, focused }) => (
+                        <TabIcon
+                            icon={play}
+                            color={color}
+                            name='Journal'
+                            focused={focused}
+                        />
+                    )
+                }}
+            />
+
          
         </Tabs>
     );
