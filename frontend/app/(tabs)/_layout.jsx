@@ -1,9 +1,11 @@
 import { Text, View, Image, StyleSheet } from 'react-native';
 import React from 'react';
 import { Tabs } from 'expo-router';
-import home from '../../assets/icons/home.png'
-import profile from '../../assets/icons/profile.png'
-import play from '../../assets/icons/play.png'
+import home from '../../assets/icons/home.png';
+import profile from '../../assets/icons/profile.png';
+import play from '../../assets/icons/play.png';
+import tasks from '../../assets/icons/planning.png';
+import journal from '../../assets/icons/diary.png';
 
 const TabIcon = ({ icon, color, name, focused }) => {
     return (
@@ -11,9 +13,15 @@ const TabIcon = ({ icon, color, name, focused }) => {
             <Image
                 source={icon}
                 resizeMode="contain"
-                style={[styles.icon, { tintColor: color }]}
+                style={[
+                    styles.icon,
+                    { tintColor: focused ? '#38b6ff' : color } // Apply focused color
+                ]}
             />
-            <Text style={[styles.iconText, { color, fontWeight: focused ? 'bold' : 'normal' }]}>
+            <Text style={[
+                styles.iconText,
+                { color: focused ? '#38b6ff' : color, fontWeight: focused ? 'bold' : 'normal' }
+            ]}>
                 {name}
             </Text>
         </View>
@@ -25,7 +33,9 @@ const TabsLayout = () => {
         <Tabs 
             screenOptions={{
                 tabBarShowLabel: false,
-                tabBarStyle: styles.tabBar
+                tabBarStyle: styles.tabBar,
+                tabBarActiveTintColor: '#38b6ff', // Set focused tab text color
+                tabBarInactiveTintColor: '#808080', // Set inactive tab color
             }}
         >
             <Tabs.Screen
@@ -34,12 +44,7 @@ const TabsLayout = () => {
                     title: 'Home',
                     headerShown: false,
                     tabBarIcon: ({ color, focused }) => (
-                        <TabIcon
-                            icon={home}
-                            color={color}
-                            name='Home'
-                            focused={focused}
-                        />
+                        <TabIcon icon={home} color={color} name='Home' focused={focused} />
                     )
                 }}
             />
@@ -50,49 +55,43 @@ const TabsLayout = () => {
                     title: 'Profile',
                     headerShown: false,
                     tabBarIcon: ({ color, focused }) => (
-                        <TabIcon
-                            icon={profile}
-                            color={color}
-                            name='Profile'
-                            focused={focused}
-                        />
+                        <TabIcon icon={profile} color={color} name='Profile' focused={focused} />
                     )
                 }}
             />
 
-<Tabs.Screen
+            <Tabs.Screen
                 name='games'
                 options={{
                     title: 'Game',
                     headerShown: false,
                     tabBarIcon: ({ color, focused }) => (
-                        <TabIcon
-                            icon={play}
-                            color={color}
-                            name='Game'
-                            focused={focused}
-                        />
+                        <TabIcon icon={play} color={color} name='Game' focused={focused} />
                     )
                 }}
             />
 
-<Tabs.Screen
+            <Tabs.Screen
                 name='journals'
                 options={{
                     title: 'Journal',
                     headerShown: false,
                     tabBarIcon: ({ color, focused }) => (
-                        <TabIcon
-                            icon={play}
-                            color={color}
-                            name='Journal'
-                            focused={focused}
-                        />
+                        <TabIcon icon={journal} color={color} name='Journal' focused={focused} />
                     )
                 }}
             />
 
-         
+            <Tabs.Screen
+                name='tasks'
+                options={{
+                    title: 'Tasks',
+                    headerShown: false,
+                    tabBarIcon: ({ color, focused }) => (
+                        <TabIcon icon={tasks} color={color} name='Tasks' focused={focused} />
+                    )
+                }}
+            />
         </Tabs>
     );
 };
@@ -101,8 +100,6 @@ const styles = StyleSheet.create({
     iconContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        textAlign:'center',
-        
     },
     icon: {
         width: 20,
@@ -110,10 +107,12 @@ const styles = StyleSheet.create({
     },
     iconText: {
         fontSize: 10,
+        textAlign: 'center',
+        width: 50,  // Ensures text does not wrap
     },
     tabBar: {
         height: 70,
-        paddingTop:15,
+        paddingTop: 15,
     }
 });
 

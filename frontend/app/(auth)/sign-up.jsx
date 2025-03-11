@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, Dimensions, SafeAreaView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import React, { useState } from 'react';
-import logo from "../../assets/images/MindMend.png";
+import logo from "../../assets/images/logo-circle.png";
 import UserTextInput from '../../components/UserTextInput';
 
 import { avatars } from '../../utils/support';
@@ -34,6 +34,13 @@ const SignUp = () => {
         <TouchableWithoutFeedback onPress={() => { setIsAvatarMenu(false); Keyboard.dismiss(); }}>
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.background}>
+                    
+                    {/* Logo and Text on Blue Background */}
+                    <View style={styles.logoContainer}>
+                        <Image source={logo} resizeMode="contain" style={styles.logo} />
+                        <Text style={styles.logoText}>Get started by creating your account!</Text>
+                    </View>
+
                     <ScrollView>
                         <View style={styles.container}>
                             {isAvatarMenu && (
@@ -54,11 +61,8 @@ const SignUp = () => {
                                 </TouchableOpacity>
                             )}
 
+                            {/* White Form Container */}
                             <View style={styles.formContainer}>
-                                <Image
-                                    source={logo}
-                                    resizeMode='contain'
-                                    style={styles.bot} />
                                 <View style={styles.inputContainer}>
                                     <View style={styles.avatarContainer}>
                                         <TouchableOpacity onPress={() => setIsAvatarMenu(true)}
@@ -119,18 +123,50 @@ const styles = StyleSheet.create({
     safeArea: { flex: 1 },
     background: { flex: 1, backgroundColor: '#38b6ff' },
     container: { flex: 1, alignItems: 'center' },
-    formContainer: { width: '100%', alignItems: 'center', paddingTop: 20, paddingHorizontal: 24, backgroundColor: 'white', borderTopLeftRadius: 70 , marginTop: 150},
+
+    // Logo and SignUp Text
+    logoContainer: { 
+        flexDirection: 'column', 
+        alignItems: 'left', 
+        justifyContent: 'left', 
+        marginTop: 50,
+        marginLeft: 20
+    },
+    logo: { 
+        width: 80, 
+        height: 80, 
+        marginRight: 10 
+    },
+    logoText: { 
+        fontSize: 24, 
+        fontWeight: 'bold', 
+        color: 'white' 
+    },
+
+    // Form Container
+    formContainer: { 
+        width: '100%', 
+        alignItems: 'center', 
+        paddingTop: 20, 
+        paddingHorizontal: 24, 
+        backgroundColor: 'white', 
+        borderTopLeftRadius: 70, 
+        marginTop: 50
+    },
+
     avatarMenu: { position: 'absolute', inset: 0, zIndex: 10, width: '100%', height: '100%' },
     blurView: { paddingHorizontal: 16, paddingVertical: 16, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
     avatarScrollContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
     avatarTouchable: { width: 80, height: 80, margin: 8, padding: 2, borderRadius: 50, borderWidth: 2, borderColor: '#03045E' },
     avatarImage: { width: '100%', height: '100%' },
-    bot: { width: 100, height: 120 },
+
     inputContainer: { width: '100%', alignItems: 'center' },
     pickerContainer: { width: '100%', borderWidth: 1, borderRadius: 8, marginVertical: 8 },
     picker: { height: 50, width: '100%' },
+
     signUpButton: { width: '100%', padding: 12, borderRadius: 8, backgroundColor: '#38b6ff', alignItems: 'center', marginVertical: 8 },
     signUpText: { color: 'white', fontSize: 18, fontWeight: 'bold' },
+
     signInContainer: { flexDirection: 'row', alignItems: 'center', marginVertical: 8 },
     signInText: { fontSize: 16 },
     signInLink: { fontSize: 16, fontWeight: 'bold', color: '#38b6ff' }
