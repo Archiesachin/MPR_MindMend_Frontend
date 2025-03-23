@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, use } from "react";
 import {
   View,
   Text,
@@ -14,8 +14,9 @@ import logo from "../../assets/images/logo-circle.png";
 import botAvatar from "../../assets/images/logo-circle.png"; // Bot's profile picture
 import userAvatar from "../../assets/icons/profile.png"; // User's profile picture
 import { API_URL } from "../context/AuthContext";
-import AuthContext from "../context/AuthContext";
+// import AuthContext from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
+import axios from "axios";
 
 const socket = io(API_URL); // Replace with your WebSocket server URL
 
@@ -24,35 +25,57 @@ const Home = () => {
   const [input, setInput] = useState("");
 
   useEffect(() => {
-    socket.on("recieve_message", (data) => {
-      // setMessages((prev) => [...prev, message]);
+    const getMessages = async () => {
+      try {
+        const userId = await SecureStore.getItemAsync("userId");
+        if (!userId) {
+          router.push("/sign-in");
+        } else {
+          const { data } = await axios.get(
+            `${API_URL}/api/conversations/${userId}`
+          );
+          setMessages(data.conversation);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getMessages();
+  }, []);
+
+  useEffect(() => {
+    socket.on("receive_message", (data) => {
+      const newMessage = {
+        sender: "ai",
+        content: data.content, // ✅ Fix: Use correct key
+        timestamp: data.timestamp,
+      };
+
+      setMessages((prev) => [...prev, newMessage]);
       console.log(data);
     });
 
     return () => {
-      socket.off("message");
+      socket.off("receive_message");
     };
   }, []);
 
   const sendMessage = async () => {
     if (input.trim().length === 0) return;
 
-    const timestamp = new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const timestamp = new Date().toUTCString();
 
     const userId = await SecureStore.getItemAsync("userId");
 
     const userMessage = {
       //change the userMessage object structure, should only send string message and _id? maybe
-      userInput: input,
-      userId: userId,
+      content: input,
       sender: "user",
+      timestamp: timestamp,
     };
 
-    setMessages((prev) => [...prev, userMessage["userInput"]]);
-    socket.emit("send_message", userMessage);
+    setMessages((prev) => [...prev, userMessage]);
+    socket.emit("send_message", { userMessage: userMessage, userId: userId });
     console.log("message sent");
     console.log(messages);
     setInput("");
@@ -66,7 +89,7 @@ const Home = () => {
       ]}
     >
       {/* Show Avatar */}
-      {item.sender === "bot" && (
+      {item.sender === "ai" && (
         <Image source={botAvatar} style={styles.avatar} />
       )}
       <View
@@ -75,7 +98,7 @@ const Home = () => {
           item.sender === "user" ? styles.userBubble : styles.botBubble,
         ]}
       >
-        <Text style={styles.messageText}>{item.text}</Text>
+        <Text style={styles.messageText}>{item.content}</Text>
         <Text style={styles.timestamp}>{item.timestamp}</Text>
       </View>
 
@@ -133,10 +156,12 @@ const styles = StyleSheet.create({
   userMessage: {
     alignSelf: "flex-end",
     justifyContent: "flex-end",
+    backgroundColor: "#007AFF",
   },
   botMessage: {
     alignSelf: "flex-start",
     justifyContent: "flex-start",
+    backgroundColor: "#f4f4f4",
   },
   messageBubble: {
     padding: 12,
@@ -144,7 +169,7 @@ const styles = StyleSheet.create({
     maxWidth: "75%",
     alignItems: "flex-end",
   },
-  messageText: { color: "#fff" },
+  messageText: { color: "#000" },
   timestamp: {
     fontSize: 10,
     color: "#ccc",
