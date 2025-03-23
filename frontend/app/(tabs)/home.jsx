@@ -78,10 +78,14 @@ const Home = () => {
       {item.sender === "bot" && (
         <Image source={botAvatar} style={styles.avatar} />
       )}
-      <View style={styles.messageBubble}>
-        <Text style={styles.messageText}>{item.text}</Text>
-        <Text style={styles.timestamp}>{item.timestamp}</Text>
-      </View>
+      <View style={[
+    styles.messageBubble, 
+    item.sender === "user" ? styles.userBubble : styles.botBubble
+]}>
+  <Text style={styles.messageText}>{item.text}</Text>
+  <Text style={styles.timestamp}>{item.timestamp}</Text>
+</View>
+
       {/* Show User Avatar */}
       {item.sender === "user" && (
         <Image source={userAvatar} style={styles.useravatar} />
@@ -124,7 +128,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
-    backgroundColor: "#071720",
+    backgroundColor: "#38b6ff",
   },
   icon: { marginLeft: 10, height: 70, width: 50, marginRight: 10 },
   appName: { fontSize: 18, fontWeight: "bold", color: "#fff", flex: 1 },
@@ -142,7 +146,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   messageBubble: {
-    backgroundColor: "#007AFF",
     padding: 12,
     borderRadius: 15,
     maxWidth: "75%",

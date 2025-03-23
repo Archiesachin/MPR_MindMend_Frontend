@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: '#071720',
+    backgroundColor: '#38b6ff',
   },
   logo: {
     height: 50,

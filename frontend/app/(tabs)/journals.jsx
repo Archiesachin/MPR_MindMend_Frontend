@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, TouchableOpacity, Image, ScrollView, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import logo from '../../assets/images/logo-circle.png'; // Adjust the path as needed
 
@@ -57,12 +57,18 @@ export default function JournalApp() {
           onChangeText={setNewEntry}
           multiline
         />
-        <Button title="Save Entry" onPress={saveJournalEntry} />
+        
+        {/* Custom Save Button */}
+        <Pressable style={styles.saveButton} onPress={saveJournalEntry}>
+          <Text style={styles.saveButtonText}>Save Entry</Text>
+        </Pressable>
+
+        {/* Journal Entries List */}
         <FlatList
           data={journalEntries}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
-          style={styles.entryList}
+          style={styles.entryFlatList} // Updated width same as input
         />
       </ScrollView>
     </View>
@@ -78,7 +84,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: '#071720',
+    backgroundColor: '#38b6ff',
   },
   logo: {
     width: 50,
@@ -104,15 +110,38 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     height: 100,
     textAlignVertical: 'top',
+    width: '90%', // Set consistent width
+    alignSelf: 'center',
+    backgroundColor: '#fff',
+  },
+  saveButton: {
+    backgroundColor: '#38b6ff',
+    padding: 12,
+    borderRadius: 5,
+    alignItems: 'center',
+    width: '90%', // Set same width as input
+    alignSelf: 'center',
+    marginBottom: 10,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   entryList: {
     padding: 20,
+  },
+  entryFlatList: {
+    width: '90%', // Same width as input field
+    alignSelf: 'center',
   },
   entryContainer: {
     padding: 10,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
     borderColor: '#ddd',
+    marginBottom: 10,
+    borderRadius: 5,
   },
   entryText: {
     fontSize: 16,
@@ -122,6 +151,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
     padding: 5,
     borderRadius: 5,
+    alignItems: 'center',
   },
   deleteButtonText: {
     color: '#fff',
