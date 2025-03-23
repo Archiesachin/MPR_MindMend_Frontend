@@ -7,6 +7,7 @@ import {
   FlatList,
   StyleSheet,
   Image,
+  ScrollView,
 } from "react-native";
 import { io } from "socket.io-client";
 import { FontAwesome } from "@expo/vector-icons";
@@ -115,12 +116,42 @@ const Home = () => {
         <Image source={logo} resizeMode="contain" style={styles.icon} />
         <Text style={styles.appName}>MindMend</Text>
       </View>
-      <FlatList
-        data={messages}
-        keyExtractor={(_, index) => index.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={styles.chatContainer}
-      />
+
+      {/* Chat Messages */}
+      <ScrollView contentContainerStyle={styles.chatContainer}>
+        {messages.map((item, index) => (
+          <View
+            key={index}
+            style={[
+              styles.messageContainer,
+              item.sender === "user" ? styles.userMessage : styles.botMessage,
+            ]}
+          >
+            {/* Show Bot Avatar */}
+            {item.sender === "ai" && (
+              <Image source={botAvatar} style={styles.avatar} />
+            )}
+
+            {/* Message Bubble */}
+            <View
+              style={[
+                styles.messageBubble,
+                item.sender === "user" ? styles.userBubble : styles.botBubble,
+              ]}
+            >
+              <Text style={styles.messageText}>{item.content}</Text>
+              <Text style={styles.timestamp}>{item.timestamp}</Text>
+            </View>
+
+            {/* Show User Avatar */}
+            {item.sender === "user" && (
+              <Image source={userAvatar} style={styles.userAvatar} />
+            )}
+          </View>
+        ))}
+      </ScrollView>
+
+      {/* Input Field */}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
