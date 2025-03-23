@@ -92,7 +92,17 @@ const TabsLayout = () => {
                     )
                 }}
             />
+
+<Tabs.Screen
+        name="CognitiveRestructuringScreen"
+        options={{
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
+
         </Tabs>
+
     );
 };
 

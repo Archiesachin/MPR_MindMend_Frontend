@@ -1,38 +1,37 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image } from 'react-native';
 import React from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { Link } from 'expo-router';
 import logo from '../../assets/images/logo-circle.png'; // Adjust the path as needed
 
+const BreathingBubbles = () => (
+  <Link href="/breathingBubbleGuide" style={styles.gameBox}>
+    <Text style={styles.gameTitle}>Breathing Bubbles</Text>
+    <Text style={styles.gameDescription}>Practice mindfulness by focusing on the present moment.</Text>
+  </Link>
+);
+
+const MeditationGuide = () => (
+  <Link href="/MeditationGuideScreen" style={styles.gameBox}>
+    <Text style={styles.gameTitle}>Meditation Guide</Text>
+    <Text style={styles.gameDescription}>A guided meditation to help you relax and calm your mind.</Text>
+  </Link>
+);
+
+const BreathingExercise = () => (
+  <Link href="/BreathingExerciseScreen" style={styles.gameBox}>
+    <Text style={styles.gameTitle}>Breathing Exercise</Text>
+    <Text style={styles.gameDescription}>A simple breathing exercise to reduce anxiety and stress.</Text>
+  </Link>
+);
+
+const CognitiveRestructuring = () => (
+  <Link href="/CognitiveRestructuringScreen" style={styles.gameBox}>
+    <Text style={styles.gameTitle}>Cognitive Restructuring</Text>
+    <Text style={styles.gameDescription}>Challenge negative thoughts and reframe them positively.</Text>
+  </Link>
+);
+
 const Games = () => {
-  const navigation = useNavigation();
-
-  const games = [
-    {
-      title: 'Breathing Bubbles',
-      description: 'Breathing Bubbles is a fun way to practice mindfulness by focusing on the present moment.',
-      route: 'breathingBubbleGuide',
-    },
-    {
-      title: 'Meditation Guide',
-      description: 'A guided meditation to help you relax and calm your mind.',
-      route: 'MeditationGuideScreen',
-    },
-    {
-      title: 'Breathing Exercise',
-      description: 'A simple breathing exercise to reduce anxiety and stress.',
-      route: 'BreathingExerciseScreen',
-    },
-    {
-      title: 'Cognitive Restructuring',
-      description: 'Challenge your negative thoughts and reframe them in a positive way.',
-      route: 'CognitiveRestructuringScreen',
-    },
-  ];
-
-  const handlePress = (route) => {
-    navigation.navigate(route);
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -41,12 +40,10 @@ const Games = () => {
       </View>
       <ScrollView style={styles.gameList}>
         <Text style={styles.heading}>Mental Health Games</Text>
-        {games.map((game, index) => (
-          <TouchableOpacity key={index} style={styles.gameBox} onPress={() => handlePress(game.route)}>
-            <Text style={styles.gameTitle}>{game.title}</Text>
-            <Text style={styles.gameDescription}>{game.description}</Text>
-          </TouchableOpacity>
-        ))}
+        <BreathingBubbles />
+        <MeditationGuide />
+        <BreathingExercise />
+        <CognitiveRestructuring />
       </ScrollView>
     </View>
   );
