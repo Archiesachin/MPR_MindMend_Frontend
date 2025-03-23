@@ -41,7 +41,7 @@ const Home = () => {
       }
     };
     getMessages();
-  }, []);
+  }, [messages]);
 
   useEffect(() => {
     socket.on("receive_message", (data) => {
@@ -140,6 +140,7 @@ const Home = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
   chatContainer: { padding: 10, marginTop: 20 },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -148,46 +149,80 @@ const styles = StyleSheet.create({
   },
   icon: { marginLeft: 10, height: 70, width: 50, marginRight: 10 },
   appName: { fontSize: 18, fontWeight: "bold", color: "#fff", flex: 1 },
+
+  // MESSAGE CONTAINER
   messageContainer: {
     flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 5,
+    alignItems: "flex-end",
+    marginVertical: 8,
+    maxWidth: "80%",
   },
   userMessage: {
     alignSelf: "flex-end",
     justifyContent: "flex-end",
-    backgroundColor: "#007AFF",
   },
   botMessage: {
     alignSelf: "flex-start",
     justifyContent: "flex-start",
-    backgroundColor: "#f4f4f4",
   },
+
+  // MESSAGE BUBBLE
   messageBubble: {
-    padding: 12,
-    borderRadius: 15,
-    maxWidth: "75%",
-    alignItems: "flex-end",
+    padding: 14,
+    borderRadius: 18,
+    maxWidth: "85%",
+    minWidth: "15%",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 2, height: 2 },
+    shadowRadius: 4,
+    elevation: 3, // For Android shadow
   },
-  messageText: { color: "#000" },
+
+  // USER MESSAGE (Blue gradient bubble)
+  userBubble: {
+    backgroundColor: "#007AFF",
+    alignSelf: "flex-end",
+    borderTopRightRadius: 2,
+  },
+  userText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+
+  // AI MESSAGE (Gray gradient bubble)
+  botBubble: {
+    backgroundColor: "#f4f4f4",
+    alignSelf: "flex-start",
+    borderTopLeftRadius: 2,
+  },
+  botText: {
+    color: "#333",
+    fontSize: 16,
+  },
+
   timestamp: {
     fontSize: 10,
-    color: "#ccc",
+    color: "#888",
     marginTop: 4,
     alignSelf: "flex-end",
   },
+
+  // AVATARS
   avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 15,
-    marginHorizontal: 5,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginHorizontal: 8,
   },
   useravatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    marginHorizontal: 5,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginHorizontal: 8,
   },
+
+  // INPUT FIELD
   inputContainer: {
     flexDirection: "row",
     padding: 10,
@@ -203,6 +238,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     color: "#000",
     marginRight: 10,
+    fontSize: 16,
   },
   sendButton: {
     padding: 12,
