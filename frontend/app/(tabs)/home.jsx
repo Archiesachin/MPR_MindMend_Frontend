@@ -1,20 +1,43 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Image } from "react-native";
+import React, { useState, useEffect, useContext } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+  Image,
+} from "react-native";
 import { io } from "socket.io-client";
 import { FontAwesome } from "@expo/vector-icons";
 import logo from "../../assets/images/logo-circle.png";
-import botAvatar from "../../assets/images/logo-circle.png";  // Bot's profile picture
+import botAvatar from "../../assets/images/logo-circle.png"; // Bot's profile picture
 import userAvatar from "../../assets/icons/profile.png"; // User's profile picture
+import { API_URL } from "../context/AuthContext";
+import AuthContext from "../context/AuthContext";
 
-const socket = io("ws://your-websocket-server-url"); // Replace with your WebSocket server URL
+const socket = io(API_URL); // Replace with your WebSocket server URL
 
 const Home = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
 
   useEffect(() => {
-    socket.on("message", (message) => {
-      setMessages((prev) => [...prev, message]);
+    const checkUser = async () => {
+      const userId = await SecureStore.getItemAsync("userId");
+      if (userId) {
+        setUser(userId);
+      } else {
+        router.push("/sign-in");
+      }
+    };
+    checkUser();
+  }, []);
+
+  useEffect(() => {
+    socket.on("recieve_message", (message) => {
+      // setMessages((prev) => [...prev, message]);
+      console.log(message);
     });
 
     return () => {
@@ -25,42 +48,32 @@ const Home = () => {
   const sendMessage = () => {
     if (input.trim().length === 0) return;
 
-    const timestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const timestamp = new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-    const userMessage = { 
-      text: input, 
-      sender: "user", 
-      timestamp, 
-      avatar: userAvatar 
+    const userMessage = {
+      //change the userMessage object structure, should only send string message and _id? maybe
+      userInput: input,
+      sender: "user",
+      timestamp,
+      avatar: userAvatar,
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    socket.emit("message", userMessage);
+    socket.emit("send_message", userMessage);
+    console.log("message sent");
     setInput("");
-
-    // Set a timeout to check if the bot responds
-    const botResponseTimeout = setTimeout(() => {
-      const botResponse = {
-        text: "I'm currently unavailable. Please try again later.",
-        sender: "bot",
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        avatar: botAvatar,
-      };
-
-      setMessages((prev) => [...prev, botResponse]);
-    }, 5000); // 5 seconds delay
-
-    socket.on("message", (botMessage) => {
-      clearTimeout(botResponseTimeout); // Clear timeout if bot responds
-      setMessages((prev) => [...prev, botMessage]);
-    });
   };
 
   const renderItem = ({ item }) => (
-    <View style={[
-        styles.messageContainer, 
-        item.sender === "user" ? styles.userMessage : styles.botMessage
-    ]}>
+    <View
+      style={[
+        styles.messageContainer,
+        item.sender === "user" ? styles.userMessage : styles.botMessage,
+      ]}
+    >
       {/* Show Avatar */}
       {item.sender === "bot" && (
         <Image source={botAvatar} style={styles.avatar} />
@@ -136,11 +149,11 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   messageText: { color: "#fff" },
-  timestamp: { 
-    fontSize: 10, 
-    color: "#ccc", 
-    marginTop: 4, 
-    alignSelf: "flex-end" 
+  timestamp: {
+    fontSize: 10,
+    color: "#ccc",
+    marginTop: 4,
+    alignSelf: "flex-end",
   },
   avatar: {
     width: 50,
