@@ -7,7 +7,7 @@ import {
   ScrollView,
   SafeAreaView,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import hero from "../../assets/images/hero-bg.png";
 import logo from "../../assets/images/MindMend.png";
 import UserTextInput from "../../components/UserTextInput";
@@ -15,6 +15,7 @@ import { useRouter, useNavigation } from "expo-router";
 import { API_URL } from "../context/AuthContext";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
+
 
 const Signin = () => {
   const [email, setEmail] = useState("");
@@ -27,16 +28,24 @@ const Signin = () => {
   const navigation = useNavigation();
   const router = useRouter();
 
+  useEffect(() => {
+    const checkUser = async () => {
+      const token = await SecureStore.getItemAsync("token");
+      if (token) {
+        router.push("/home");
+      }
+    };
+    checkUser();
+  }, []);
+
   const handleLogin = async () => {
     try {
       const { data } = await axios.post(`${API_URL}/api/login`, {
         email,
         password,
       });
-      // await SecureStore.setItemAsync("token", data.token);
+      await SecureStore.setItemAsync("token", data.token);
       await SecureStore.setItemAsync("userId", data.userId);
-      // setToken(data.token);
-      // setUser(data.userId);
       router.push("/home");
     } catch (error) {
       console.log(error);

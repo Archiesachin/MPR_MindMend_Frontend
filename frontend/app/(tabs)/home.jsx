@@ -15,6 +15,7 @@ import botAvatar from "../../assets/images/logo-circle.png"; // Bot's profile pi
 import userAvatar from "../../assets/icons/profile.png"; // User's profile picture
 import { API_URL } from "../context/AuthContext";
 import AuthContext from "../context/AuthContext";
+import * as SecureStore from "expo-secure-store";
 
 const socket = io(API_URL); // Replace with your WebSocket server URL
 
@@ -23,21 +24,9 @@ const Home = () => {
   const [input, setInput] = useState("");
 
   useEffect(() => {
-    const checkUser = async () => {
-      const userId = await SecureStore.getItemAsync("userId");
-      if (userId) {
-        setUser(userId);
-      } else {
-        router.push("/sign-in");
-      }
-    };
-    checkUser();
-  }, []);
-
-  useEffect(() => {
-    socket.on("recieve_message", (message) => {
+    socket.on("recieve_message", (data) => {
       // setMessages((prev) => [...prev, message]);
-      console.log(message);
+      console.log(data);
     });
 
     return () => {
@@ -45,7 +34,7 @@ const Home = () => {
     };
   }, []);
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (input.trim().length === 0) return;
 
     const timestamp = new Date().toLocaleTimeString([], {
@@ -53,17 +42,19 @@ const Home = () => {
       minute: "2-digit",
     });
 
+    const userId = await SecureStore.getItemAsync("userId");
+
     const userMessage = {
       //change the userMessage object structure, should only send string message and _id? maybe
       userInput: input,
+      userId: userId,
       sender: "user",
-      timestamp,
-      avatar: userAvatar,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage["userInput"]]);
     socket.emit("send_message", userMessage);
     console.log("message sent");
+    console.log(messages);
     setInput("");
   };
 
@@ -78,13 +69,15 @@ const Home = () => {
       {item.sender === "bot" && (
         <Image source={botAvatar} style={styles.avatar} />
       )}
-      <View style={[
-    styles.messageBubble, 
-    item.sender === "user" ? styles.userBubble : styles.botBubble
-]}>
-  <Text style={styles.messageText}>{item.text}</Text>
-  <Text style={styles.timestamp}>{item.timestamp}</Text>
-</View>
+      <View
+        style={[
+          styles.messageBubble,
+          item.sender === "user" ? styles.userBubble : styles.botBubble,
+        ]}
+      >
+        <Text style={styles.messageText}>{item.text}</Text>
+        <Text style={styles.timestamp}>{item.timestamp}</Text>
+      </View>
 
       {/* Show User Avatar */}
       {item.sender === "user" && (
