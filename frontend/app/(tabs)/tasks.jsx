@@ -1,5 +1,14 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ImageBackground } from "react-native";
-import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  ImageBackground,
+  ScrollView,
+} from "react-native";
+import React, { useState, useEffect } from "react";
 import logo from "../../assets/images/logo-circle.png"; // Adjust the path if needed
 import background from "../../assets/images/new-background.jpg";
 import { FontAwesome } from "@expo/vector-icons";
@@ -40,36 +49,45 @@ const Tasks = () => {
     setFeedback(""); // Clear input field after submission
   };
 
-  const router = useRouter()
+  const router = useRouter();
 
   return (
-    <ImageBackground source={background} style={styles.background} resizeMode="cover">
+    <ImageBackground
+      source={background}
+      style={styles.background}
+      resizeMode="cover"
+    >
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
           <Image source={logo} resizeMode="contain" style={styles.icon} />
           <Text style={styles.appName}>MindMend</Text>
-          <TouchableOpacity style={{ marginRight: 10 }} onPress={() => router.push('/tasksHistoryScreen')}>
+          <TouchableOpacity
+            style={{ marginRight: 10 }}
+            onPress={() => router.push("/tasksHistoryScreen")}
+          >
             <Text style={styles.back}>History</Text>
           </TouchableOpacity>
         </View>
 
-      {/* Task Section */}
-      <Text style={styles.taskTitle}>Today's Tasks</Text>
-      
-      <ScrollView style={styles.taskList}>
-        {tasks.length > 0 ? (
-          tasks.map((task, index) => (
-            <View key={index} style={styles.taskItem}>
-              <Text style={styles.taskText}>
-                {task.completed ? "✅" : "⬜"} {task.description}
-              </Text>
-            </View>
-          ))
-        ) : (
-          <Text style={styles.noTasks}>No tasks available</Text>
-        )}
-      </ScrollView>
+        {/* Task Section */}
+        <Text style={styles.taskTitle}>Today's Tasks</Text>
+
+        <ScrollView style={styles.taskList}>
+          {tasks.length > 0 ? (
+            tasks.map((task, index) => (
+              <View key={index} style={styles.taskItem}>
+                {task.completed == false ? (
+                  <Text style={styles.taskText}>{task.description}</Text>
+                ) : (
+                  <Text style={styles.noTasks}>No pending tasks</Text>
+                )}
+              </View>
+            ))
+          ) : (
+            <Text style={styles.noTasks}>No tasks available</Text>
+          )}
+        </ScrollView>
 
         {/* Feedback Input */}
         <TextInput
@@ -88,7 +106,13 @@ const Tasks = () => {
         {/* Feedback Summary */}
         {summary ? <Text style={styles.summary}>{summary}</Text> : null}
 
-        <CustomSlider min={1} max={5} step={1} initialValue={3} onValueChange={setMoodScore} />
+        <CustomSlider
+          min={1}
+          max={5}
+          step={1}
+          initialValue={3}
+          onValueChange={setMoodScore}
+        />
       </View>
     </ImageBackground>
   );
@@ -160,6 +184,7 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
     marginHorizontal: 20,
     marginBottom: 10,
+    marginTop: 25,
   },
   button: {
     backgroundColor: "#38b6ff",
