@@ -8,16 +8,18 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  ImageBackground
 } from "react-native";
 import { io } from "socket.io-client";
 import { FontAwesome } from "@expo/vector-icons";
 import logo from "../../assets/images/logo-circle.png";
 import botAvatar from "../../assets/images/logo-circle.png"; // Bot's profile picture
-import userAvatar from "../../assets/icons/profile.png"; // User's profile picture
+import userAvatar from "../../assets/images/profile.png"; // User's profile picture
 import { API_URL } from "../context/AuthContext";
 // import AuthContext from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
+import background from '../../assets/images/new-background.jpg'
 
 const socket = io(API_URL); // Replace with your WebSocket server URL
 
@@ -111,10 +113,17 @@ const Home = () => {
   );
 
   return (
+    <ImageBackground
+    source={background} // Update the path as per your folder structure
+      style={styles.background}
+      resizeMode="cover" >
     <View style={styles.container}>
       <View style={styles.header}>
         <Image source={logo} resizeMode="contain" style={styles.icon} />
-        <Text style={styles.appName}>MindMend</Text>
+        <Text style={styles.appName}>Chat with AI</Text>
+        <TouchableOpacity style={{ marginRight: 10 }}>
+        <FontAwesome name="ellipsis-v" size={24} color="black"  />
+      </TouchableOpacity>
       </View>
 
       {/* Chat Messages */}
@@ -145,7 +154,7 @@ const Home = () => {
 
             {/* Show User Avatar */}
             {item.sender === "user" && (
-              <Image source={userAvatar} style={styles.useravatar} />
+              <Image source={userAvatar} style={styles.useravatar} resizeMode="contain"/>
             )}
           </View>
         ))}
@@ -165,21 +174,31 @@ const Home = () => {
         </TouchableOpacity>
       </View>
     </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.2)", // Optional: Semi-transparent overlay
+  },
+  
   chatContainer: { padding: 10, marginTop: 20 },
 
   header: {
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
-    backgroundColor: "#38b6ff",
+    justifyContent:'space-around'
   },
-  icon: { marginLeft: 10, height: 70, width: 50, marginRight: 10 },
-  appName: { fontSize: 18, fontWeight: "bold", color: "#fff", flex: 1 },
+  icon: { marginLeft: 10, height: 80, width: 60, marginRight: 10 },
+  appName: { fontSize: 18, fontWeight: "bold", color: "#000", flex: 1 },
 
   // MESSAGE CONTAINER
   messageContainer: {
@@ -212,7 +231,7 @@ const styles = StyleSheet.create({
 
   // USER MESSAGE (Blue gradient bubble)
   userBubble: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#b5e2fa",
     alignSelf: "flex-end",
     borderTopRightRadius: 2,
   },
@@ -251,15 +270,14 @@ const styles = StyleSheet.create({
     height: 35,
     borderRadius: 20,
     marginHorizontal: 8,
+    borderWidth:0.5,
+    marginBottom: 30
   },
 
   // INPUT FIELD
   inputContainer: {
     flexDirection: "row",
     padding: 10,
-    backgroundColor: "#1C1C1E",
-    borderTopWidth: 1,
-    borderColor: "#333",
     alignItems: "center",
   },
   input: {
@@ -270,11 +288,18 @@ const styles = StyleSheet.create({
     color: "#000",
     marginRight: 10,
     fontSize: 16,
+    borderColor:'#d9d9d9',
+    borderWidth: 0.5,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 2, height: 2 },
+    shadowRadius: 4,
+    elevation: 3,
   },
   sendButton: {
     padding: 12,
     borderRadius: 25,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#38b6ff",
   },
 });
 

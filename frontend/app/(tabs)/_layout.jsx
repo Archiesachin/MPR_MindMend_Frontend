@@ -49,16 +49,7 @@ const TabsLayout = () => {
                 }}
             />
 
-            <Tabs.Screen
-                name='profile'
-                options={{
-                    title: 'Profile',
-                    headerShown: false,
-                    tabBarIcon: ({ color, focused }) => (
-                        <TabIcon icon={profile} color={color} name='Profile' focused={focused} />
-                    )
-                }}
-            />
+            
 
             <Tabs.Screen
                 name='games'
@@ -94,12 +85,25 @@ const TabsLayout = () => {
             />
 
 <Tabs.Screen
-        name="CognitiveRestructuringScreen"
-        options={{
-          headerShown: false,
-          tabBarButton: () => null,
-        }}
-      />
+                name='profile'
+                options={{
+                    title: 'Profile',
+                    headerShown: false,
+                    tabBarIcon: ({ color, focused }) => (
+                        <TabIcon icon={profile} color={color} name='Profile' focused={focused} />
+                    )
+                }}
+            />
+
+<Tabs.Screen
+  name="CognitiveRestructuringScreen"
+  options={{
+    headerShown: false,
+    href: null,  // This completely hides the tab
+  }}
+/>
+
+
 
         </Tabs>
 
