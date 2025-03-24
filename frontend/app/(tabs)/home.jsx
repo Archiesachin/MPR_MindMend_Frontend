@@ -42,7 +42,7 @@ const Home = () => {
       }
     };
     getMessages();
-  }, [messages]);
+  }, []);
 
   useEffect(() => {
     socket.on("receive_message", (data) => {
@@ -64,7 +64,7 @@ const Home = () => {
   const sendMessage = async () => {
     if (input.trim().length === 0) return;
 
-    const timestamp = new Date().toUTCString();
+    const timestamp = new Date().toISOString();
 
     const userId = await SecureStore.getItemAsync("userId");
 
@@ -145,7 +145,7 @@ const Home = () => {
 
             {/* Show User Avatar */}
             {item.sender === "user" && (
-              <Image source={userAvatar} style={styles.userAvatar} />
+              <Image source={userAvatar} style={styles.useravatar} />
             )}
           </View>
         ))}
@@ -247,8 +247,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   useravatar: {
-    width: 40,
-    height: 40,
+    width: 35,
+    height: 35,
     borderRadius: 20,
     marginHorizontal: 8,
   },
