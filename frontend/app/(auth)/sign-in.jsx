@@ -40,12 +40,12 @@ const Signin = () => {
 
   const handleLogin = async () => {
     try {
-      // const { data } = await axios.post(`${API_URL}/api/login`, {
-      //   email,
-      //   password,
-      // });
-      // await SecureStore.setItemAsync("token", data.token);
-      // await SecureStore.setItemAsync("userId", data.userId);
+      const { data } = await axios.post(`${API_URL}/api/login`, {
+        email,
+        password,
+      });
+      await SecureStore.setItemAsync("token", data.token);
+      await SecureStore.setItemAsync("userId", data.userId);
       router.push("/home");
     } catch (error) {
       console.log(error);
