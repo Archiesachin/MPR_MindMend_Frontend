@@ -3,15 +3,17 @@ import { View , Text, ImageBackground, TouchableOpacity, StyleSheet, Image} from
 import background from '../../assets/images/new-background.jpg';
 import logo from '../../assets/images/logo-circle.png'; // Add your logo image path
 import { FontAwesome } from "@expo/vector-icons";
+import { useRouter } from 'expo-router';
 
 const tasksHistoryScreen = () => {
+    const router = useRouter()
   return (
        <ImageBackground source={background} style={styles.background} resizeMode="cover">
           {/* Header Section */}
           <View style={styles.header}>
                   <Image source={logo} resizeMode="contain" style={styles.icon} />
                   <Text style={styles.appName}>MindMend</Text>
-                  <TouchableOpacity style={{ marginRight: 10 }} onPress={() => router.push('/games')}>
+                  <TouchableOpacity style={{ marginRight: 10 }} onPress={() => router.push('/tasks')}>
                   <Text style={styles.back}>Back</Text>
                 </TouchableOpacity>
                 </View>

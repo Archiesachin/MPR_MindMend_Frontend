@@ -1,31 +1,31 @@
-import React, { useState, useEffect, useContext, use } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
-  StyleSheet,
-  Image,
   ScrollView,
-  ImageBackground
+  Image,
+  ImageBackground,
 } from "react-native";
 import { io } from "socket.io-client";
 import { FontAwesome } from "@expo/vector-icons";
-import logo from "../../assets/images/logo-circle.png";
-import botAvatar from "../../assets/images/logo-circle.png"; // Bot's profile picture
-import userAvatar from "../../assets/images/profile.png"; // User's profile picture
 import { API_URL } from "../context/AuthContext";
-// import AuthContext from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
-import background from '../../assets/images/new-background.jpg'
+import { Audio } from "expo-av";
+import logo from "../../assets/images/logo-circle.png";
+import botAvatar from "../../assets/images/logo-circle.png";
+import userAvatar from "../../assets/images/profile.png";
+import background from "../../assets/images/new-background.jpg";
 
-const socket = io(API_URL); // Replace with your WebSocket server URL
+const socket = io(API_URL);
 
 const Home = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [recording, setRecording] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
 
   useEffect(() => {
     const getMessages = async () => {
@@ -34,9 +34,7 @@ const Home = () => {
         if (!userId) {
           router.push("/sign-in");
         } else {
-          const { data } = await axios.get(
-            `${API_URL}/api/conversations/${userId}`
-          );
+          const { data } = await axios.get(`${API_URL}/api/conversations/${userId}`);
           setMessages(data.conversation);
         }
       } catch (error) {
@@ -50,12 +48,12 @@ const Home = () => {
     socket.on("receive_message", (data) => {
       const newMessage = {
         sender: "ai",
-        content: data.content, // ✅ Fix: Use correct key
+        content: data.content,
         timestamp: data.timestamp,
+        type: data.type || "text",
       };
 
       setMessages((prev) => [...prev, newMessage]);
-      console.log(data);
     });
 
     return () => {
@@ -67,140 +65,157 @@ const Home = () => {
     if (input.trim().length === 0) return;
 
     const timestamp = new Date().toISOString();
-
     const userId = await SecureStore.getItemAsync("userId");
 
     const userMessage = {
-      //change the userMessage object structure, should only send string message and _id? maybe
       content: input,
       sender: "user",
-      timestamp: timestamp,
+      timestamp,
+      type: "text",
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    socket.emit("send_message", { userMessage: userMessage, userId: userId });
-    console.log("message sent");
-    console.log(messages);
+    socket.emit("send_message", { userMessage, userId });
     setInput("");
   };
 
-  const renderItem = ({ item }) => (
-    <View
-      style={[
-        styles.messageContainer,
-        item.sender === "user" ? styles.userMessage : styles.botMessage,
-      ]}
-    >
-      {/* Show Avatar */}
-      {item.sender === "ai" && (
-        <Image source={botAvatar} style={styles.avatar} />
-      )}
-      <View
-        style={[
-          styles.messageBubble,
-          item.sender === "user" ? styles.userBubble : styles.botBubble,
-        ]}
-      >
-        <Text style={styles.messageText}>{item.content}</Text>
-        <Text style={styles.timestamp}>{item.timestamp}</Text>
-      </View>
+  const startRecording = async () => {
+    try {
+      setIsRecording(true);
+      const { granted } = await Audio.requestPermissionsAsync();
+      if (!granted) return;
 
-      {/* Show User Avatar */}
-      {item.sender === "user" && (
-        <Image source={userAvatar} style={styles.useravatar} />
-      )}
-    </View>
-  );
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      setRecording(recording);
+    } catch (error) {
+      console.log("Error starting recording:", error);
+    }
+  };
+
+  const stopRecording = async () => {
+    setIsRecording(false);
+    if (!recording) return;
+
+    await recording.stopAndUnloadAsync();
+    const uri = recording.getURI();
+    setRecording(null);
+
+    const timestamp = new Date().toISOString();
+    const userMessage = {
+      sender: "user",
+      content: uri,
+      timestamp,
+      type: "audio",
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    socket.emit("send_message", { userMessage });
+  };
+
+  const playAudio = async (uri) => {
+    const { sound } = await Audio.Sound.createAsync({ uri });
+    await sound.playAsync();
+  };
 
   return (
-    <ImageBackground
-    source={background} // Update the path as per your folder structure
-      style={styles.background}
-      resizeMode="cover" >
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Image source={logo} resizeMode="contain" style={styles.icon} />
-        <Text style={styles.appName}>Chat with AI</Text>
-        <TouchableOpacity style={{ marginRight: 10 }}>
-        <FontAwesome name="ellipsis-v" size={24} color="black"  />
-      </TouchableOpacity>
-      </View>
+    <ImageBackground source={background} style={styles.background} resizeMode="cover">
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Image source={logo} resizeMode="contain" style={styles.icon} />
+          <Text style={styles.appName}>Chat with AI</Text>
+          <TouchableOpacity style={{ marginRight: 10 }}>
+            <FontAwesome name="ellipsis-v" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
 
-      {/* Chat Messages */}
-      <ScrollView contentContainerStyle={styles.chatContainer}>
-        {messages.map((item, index) => (
-          <View
-            key={index}
-            style={[
-              styles.messageContainer,
-              item.sender === "user" ? styles.userMessage : styles.botMessage,
-            ]}
-          >
-            {/* Show Bot Avatar */}
-            {item.sender === "ai" && (
-              <Image source={botAvatar} style={styles.avatar} />
-            )}
-
-            {/* Message Bubble */}
+        {/* Chat Messages */}
+        <ScrollView contentContainerStyle={styles.chatContainer}>
+          {messages.map((item, index) => (
             <View
+              key={index}
               style={[
-                styles.messageBubble,
-                item.sender === "user" ? styles.userBubble : styles.botBubble,
+                styles.messageContainer,
+                item.sender === "user" ? styles.userMessage : styles.botMessage,
               ]}
             >
-              <Text style={styles.messageText}>{item.content}</Text>
-              <Text style={styles.timestamp}>{item.timestamp}</Text>
+              {item.sender === "ai" && <Image source={botAvatar} style={styles.avatar} />}
+
+              <View
+                style={[
+                  styles.messageBubble,
+                  item.sender === "user" ? styles.userBubble : styles.botBubble,
+                ]}
+              >
+                {item.type === "text" ? (
+                  <Text style={styles.messageText}>{item.content}</Text>
+                ) : (
+                  <TouchableOpacity onPress={() => playAudio(item.content)}>
+                    <FontAwesome name="play-circle" size={24} color="#38b6ff" />
+                    <Text style={styles.audioText}>Voice Note</Text>
+                  </TouchableOpacity>
+                )}
+                <Text style={styles.timestamp}>{item.timestamp}</Text>
+              </View>
+
+              {item.sender === "user" && (
+                <Image source={userAvatar} style={styles.useravatar} resizeMode="contain" />
+              )}
             </View>
+          ))}
+        </ScrollView>
 
-            {/* Show User Avatar */}
-            {item.sender === "user" && (
-              <Image source={userAvatar} style={styles.useravatar} resizeMode="contain"/>
-            )}
-          </View>
-        ))}
-      </ScrollView>
+        {/* Input Field */}
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Type a message..."
+            placeholderTextColor="#888"
+            value={input}
+            onChangeText={setInput}
+          />
 
-      {/* Input Field */}
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Type a message..."
-          placeholderTextColor="#888"
-          value={input}
-          onChangeText={setInput}
-        />
-        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-          <FontAwesome name="paper-plane" size={18} color="white" />
-        </TouchableOpacity>
+          {/* Voice Recording Button */}
+          <TouchableOpacity
+            style={styles.voiceButton}
+            onPress={isRecording ? stopRecording : startRecording}
+          >
+            <FontAwesome name={isRecording ? "stop" : "microphone"} size={18} color="white" />
+          </TouchableOpacity>
+
+          {/* Send Message Button */}
+          <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+            <FontAwesome name="paper-plane" size={18} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
     </ImageBackground>
   );
 };
 
-const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
+const styles = {
+  background: { 
+    flex: 1, 
+    width: "100%", 
+    height: "100%" 
   },
-  container: {
-    flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.2)", // Optional: Semi-transparent overlay
-  },
-  
-  chatContainer: { padding: 10, marginTop: 20 },
 
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    justifyContent:'space-around'
+  container: { 
+    flex: 1, 
+    backgroundColor: "rgba(255, 255, 255, 0.2)" 
   },
+
+  chatContainer: { 
+    padding: 10, marginTop: 20 },
+  header: { flexDirection: "row", alignItems: "center", padding: 10, justifyContent: "space-around" },
   icon: { marginLeft: 10, height: 80, width: 60, marginRight: 10 },
   appName: { fontSize: 18, fontWeight: "bold", color: "#000", flex: 1 },
-
-  // MESSAGE CONTAINER
   messageContainer: {
     flexDirection: "row",
     alignItems: "flex-end",
@@ -216,7 +231,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
 
-  // MESSAGE BUBBLE
+
   messageBubble: {
     padding: 14,
     borderRadius: 18,
@@ -273,34 +288,12 @@ const styles = StyleSheet.create({
     borderWidth:0.5,
     marginBottom: 30
   },
-
-  // INPUT FIELD
-  inputContainer: {
-    flexDirection: "row",
-    padding: 10,
-    alignItems: "center",
-  },
-  input: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 25,
-    backgroundColor: "#fff",
-    color: "#000",
-    marginRight: 10,
-    fontSize: 16,
-    borderColor:'#d9d9d9',
-    borderWidth: 0.5,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 2, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sendButton: {
-    padding: 12,
-    borderRadius: 25,
-    backgroundColor: "#38b6ff",
-  },
-});
+ 
+  inputContainer: { flexDirection: "row", alignItems: "center", padding: 10 },
+  input: { flex: 1, padding: 10, borderRadius: 20, backgroundColor: "#fff", fontSize: 16 },
+  sendButton: { padding: 12, borderRadius: 20, backgroundColor: "#38b6ff", marginLeft: 8 },
+  voiceButton: { padding: 12, borderRadius: 20, backgroundColor: "#ff5252", marginLeft: 8 },
+  audioText: { color: "#38b6ff", marginTop: 4, textAlign: "center" },
+};
 
 export default Home;
