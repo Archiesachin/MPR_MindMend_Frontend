@@ -1,22 +1,34 @@
-import { StyleSheet, Text, View, Image } from 'react-native';
-import React from 'react';
+import { StyleSheet, Text, View, Image, ImageBackground , TouchableOpacity} from 'react-native';
+import React , {useState}from 'react';
 import logo from '../../assets/images/logo-circle.png'
+import background from '../../assets/images/new-background.jpg'
+import { FontAwesome } from "@expo/vector-icons";
+import CustomSlider from '../../components/CustomSlider';
 
 const Profile = () => {
   const user = {
-    profilePic: require('../../assets/icons/profile.png'), // Replace with actual image path
+    profilePic: require('../../assets/images/profile.png'), // Replace with actual image path
     username: 'John Doe',
     email: 'johndoe@example.com',
     age: 25,
     gender: 'Male',
   };
 
+  const [moodScore, setMoodScore] = useState(3); // Hardcoded initial value
+
   return (
+    <ImageBackground
+            source={background} // Update the path as per your folder structure
+              style={styles.background}
+              resizeMode="cover" >
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image source={logo} style={styles.logo} />
-        <Text style={styles.headerText}>MindMend</Text>
+              <Image source={logo} resizeMode="contain" style={styles.icon} />
+              <Text style={styles.appName}>MindMend</Text>
+              <TouchableOpacity style={{ marginRight: 10 }}>
+              <FontAwesome name="ellipsis-v" size={24} color="black"  />
+            </TouchableOpacity>
       </View>
 
       {/* Profile Info */}
@@ -27,35 +39,59 @@ const Profile = () => {
 
       {/* User Details */}
       <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>Email: {user.email}</Text>
-        <Text style={styles.infoText}>Age: {user.age}</Text>
-        <Text style={styles.infoText}>Gender: {user.gender}</Text>
-      </View>
+  <View style={styles.infoRow}>
+    <Text style={styles.infoLabel}>Email:</Text>
+    <Text style={styles.infoValue}>{user.email}</Text>
+  </View>
+  <View style={styles.infoRow}>
+    <Text style={styles.infoLabel}>Age:</Text>
+    <Text style={styles.infoValue}>{user.age}</Text>
+  </View>
+  <View style={styles.infoRow}>
+    <Text style={styles.infoLabel}>Gender:</Text>
+    <Text style={styles.infoValue}>{user.gender}</Text>
+  </View>
+</View>
+  <View style={styles.sliderContainer}>
+      <CustomSlider min={1} max={5} step={1} initialValue={3} onValueChange={setMoodScore}/>
     </View>
+
+    </View>
+    
+    </ImageBackground>
   );
 };
 
 export default Profile;
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
   container: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
-    padding: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.2)", // Optional: Semi-transparent overlay
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-    paddingVertical: 15,
-    backgroundColor: '#38b6ff',
-    borderRadius: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    justifyContent:'space-around'
   },
-  logo: {
-    width: 30,
-    height: 30,
-    marginRight: 10,
+  icon: { 
+    marginLeft: 10, 
+    height: 80, 
+    width: 60, 
+    marginRight: 10 
+  },
+
+  appName: { 
+    fontSize: 18, 
+    fontWeight: "bold", 
+    color: "#000", 
+    flex: 1 
   },
   headerText: {
     fontSize: 20,
@@ -78,18 +114,34 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   infoContainer: {
-    padding: 15,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    elevation: 3, // Adds shadow on Android
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    width: "90%",
+    alignSelf: "center",
+    marginTop: 20,
+    paddingBottom: 10,
+    borderBottomWidth:0.5
   },
-  infoText: {
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "flex-start", // Align content to the start
+    alignItems: "center", // Center align items vertically
+    paddingVertical: 8,
+  },
+  infoLabel: {
     fontSize: 16,
-    color: '#555',
-    marginBottom: 5,
+    fontWeight: "bold",
+    color: "#333",
+    width: 80, // Fixed width to keep alignment consistent
   },
+  infoValue: {
+    fontSize: 16,
+    color: "#555",
+    flex: 1, // Ensures it takes remaining space and aligns left
+    textAlign: "left",
+  },
+
+  sliderContainer:{
+    marginTop: 20,
+    // alignItems:'center'
+  },
+
 });

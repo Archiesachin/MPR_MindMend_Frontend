@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, TouchableOpacity, Image, ScrollView, Pressable } from 'react-native';
+import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Modal, Pressable, Image, ScrollView, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import logo from '../../assets/images/logo-circle.png'; // Adjust the path as needed
+import logo from '../../assets/images/logo-circle.png';
+import background from '../../assets/images/new-background.jpg';
+import { FontAwesome } from "@expo/vector-icons";
 
 export default function JournalApp() {
   const [journalEntries, setJournalEntries] = useState([]);
   const [newEntry, setNewEntry] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedNote, setSelectedNote] = useState(null); // For viewing full note
 
   useEffect(() => {
     loadJournalEntries();
@@ -16,6 +20,7 @@ export default function JournalApp() {
       const updatedEntries = [...journalEntries, { id: Date.now(), text: newEntry }];
       setJournalEntries(updatedEntries);
       setNewEntry('');
+      setModalVisible(false);
       await AsyncStorage.setItem('journalEntries', JSON.stringify(updatedEntries));
     }
   };
@@ -33,68 +38,115 @@ export default function JournalApp() {
     await AsyncStorage.setItem('journalEntries', JSON.stringify(updatedEntries));
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.entryContainer}>
-      <Text style={styles.entryText}>{item.text}</Text>
-      <TouchableOpacity onPress={() => deleteJournalEntry(item.id)} style={styles.deleteButton}>
-        <Text style={styles.deleteButtonText}>Delete</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Image source={logo} style={styles.logo} resizeMode="contain" />
-        <Text style={styles.appName}>MindMend</Text>
-      </View>
-      <ScrollView style={styles.entryList}>
-        <Text style={styles.heading}>My Journal</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Write a new journal entry..."
-          value={newEntry}
-          onChangeText={setNewEntry}
-          multiline
-        />
-        
-        {/* Custom Save Button */}
-        <Pressable style={styles.saveButton} onPress={saveJournalEntry}>
-          <Text style={styles.saveButtonText}>Save Entry</Text>
-        </Pressable>
+    <ImageBackground source={background} style={styles.background} resizeMode="cover">
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Image source={logo} resizeMode="contain" style={styles.icon} />
+          <Text style={styles.appName}>MindMend</Text>
+          <TouchableOpacity style={{ marginRight: 10 }}>
+            <FontAwesome name="ellipsis-v" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
 
-        {/* Journal Entries List */}
-        <FlatList
-          data={journalEntries}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-          style={styles.entryFlatList} // Updated width same as input
-        />
-      </ScrollView>
-    </View>
+        <ScrollView style={styles.entryList}>
+          <Text style={styles.heading}>All Notes</Text>
+
+          {/* Journal Entries Grid */}
+          <FlatList
+            data={journalEntries}
+            numColumns={2} // 2x2 Grid Layout
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.entryContainer}
+                onPress={() => setSelectedNote(item)}
+                onLongPress={() => deleteJournalEntry(item.id)} // Long press to delete
+              >
+                <Text numberOfLines={4} ellipsizeMode="tail" style={styles.entryText}>{item.text}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </ScrollView>
+
+        {/* Floating Add Button */}
+        <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+          <FontAwesome name="plus" size={24} color="white" />
+        </TouchableOpacity>
+
+        {/* Modal for Adding Notes */}
+        <Modal visible={modalVisible} transparent animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              {/* Close (X) Button */}
+              <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+                <FontAwesome name="close" size={24} color="black" />
+              </TouchableOpacity>
+
+              <Text style={styles.modalTitle}>Write a Note</Text>
+
+              <TextInput
+                style={styles.input}
+                placeholder="Write your journal entry..."
+                value={newEntry}
+                onChangeText={setNewEntry}
+                multiline
+              />
+
+              <Pressable style={styles.saveButton} onPress={saveJournalEntry}>
+                <Text style={styles.saveButtonText}>Save Entry</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Modal for Viewing Full Note */}
+        <Modal visible={!!selectedNote} transparent animationType="fade">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              {/* Close (X) Button */}
+              <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedNote(null)}>
+                <FontAwesome name="close" size={24} color="black" />
+              </TouchableOpacity>
+
+              <Text style={styles.fullNoteText}>{selectedNote?.text}</Text>
+            </View>
+          </View>
+        </Modal>
+
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
   container: {
     flex: 1,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 10,
-    backgroundColor: '#38b6ff',
+    justifyContent: 'space-around',
   },
-  logo: {
-    width: 50,
-    height: 50,
-    marginRight: 10,
+  icon: { 
+    marginLeft: 10, 
+    height: 80, 
+    width: 60, 
+    marginRight: 10 
   },
-  appName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
+  appName: { 
+    fontSize: 18, 
+    fontWeight: "bold", 
+    color: "#000", 
+    flex: 1 
   },
   heading: {
     fontSize: 24,
@@ -102,59 +154,97 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
-    height: 100,
-    textAlignVertical: 'top',
-    width: '90%', // Set consistent width
-    alignSelf: 'center',
-    backgroundColor: '#fff',
-  },
-  saveButton: {
-    backgroundColor: '#38b6ff',
-    padding: 12,
-    borderRadius: 5,
-    alignItems: 'center',
-    width: '90%', // Set same width as input
-    alignSelf: 'center',
-    marginBottom: 10,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
   entryList: {
     padding: 20,
   },
-  entryFlatList: {
-    width: '90%', // Same width as input field
-    alignSelf: 'center',
-  },
   entryContainer: {
+    flex: 1,
+    margin: 10,
     padding: 10,
     backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderColor: '#ddd',
-    marginBottom: 10,
-    borderRadius: 5,
+    borderRadius: 8,
+    minHeight: 100,
+    maxWidth: '48%', // Ensures two items per row
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5, // For Android shadow
   },
+  
   entryText: {
+    fontSize: 14,
+    textAlign: "center",
+  },
+  fab: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "#38b6ff",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 5,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    position: "relative",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  fullNoteText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginVertical: 20,
+  },
+  input: {
+    width: "100%",
+    height: 100,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    backgroundColor: "#fff",
+    textAlignVertical: "top",
+  },
+  saveButton: {
+    backgroundColor: "#38b6ff",
+    padding: 12,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 10,
+    width: "100%",
+  },
+  saveButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 16,
   },
-  deleteButton: {
-    marginTop: 10,
-    backgroundColor: 'red',
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
     padding: 5,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  deleteButtonText: {
-    color: '#fff',
-    textAlign: 'center',
   },
 });
+

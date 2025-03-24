@@ -103,6 +103,14 @@ const TabsLayout = () => {
   }}
 />
 
+<Tabs.Screen
+  name="tasksHistoryScreen"
+  options={{
+    headerShown: false,
+    href: null,  // This completely hides the tab
+  }}
+/>
+
 
 
         </Tabs>
