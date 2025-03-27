@@ -56,17 +56,20 @@ const tasksHistoryScreen = () => {
       </View>
 
       {/* Task List */}
-      <ScrollView style={styles.taskContainer}>
-        <Text style={styles.taskTitle}>Your Task History</Text>
-        {tasks.length > 0 ? (
-          tasks.map((task, index) => (
-            <View key={index} style={styles.taskCard}>
-              <Text style={styles.taskDesc}>{task.description}</Text>
-              <Text style={styles.taskText}>{task.completed}</Text>              {/* ! complete is not rendering ! */}
-            </View>
-          ))
+      <ScrollView style={styles.taskList}>
+        {tasks.filter((task) => task.completed == false).length > 0 ? (
+          tasks
+            .filter((task) => task.completed == false) // Filter only completed tasks
+            .map((task, index) => (
+              <View key={index} style={styles.taskItem}>
+                <View style={styles.taskCard}>
+                  <Text style={styles.taskText}>{task.description}</Text>
+                  <Text style={styles.taskDesc}>Feedback</Text>
+                </View>
+              </View>
+            ))
         ) : (
-          <Text style={styles.noTaskText}>No tasks found</Text>
+          <Text style={styles.noTasks}>No completed tasks available</Text>
         )}
       </ScrollView>
     </ImageBackground>
