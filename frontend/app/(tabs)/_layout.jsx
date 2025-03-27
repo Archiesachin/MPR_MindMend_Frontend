@@ -111,6 +111,22 @@ const TabsLayout = () => {
   }}
 />
 
+<Tabs.Screen
+  name="MusicTherapyScreen"
+  options={{
+    headerShown: false,
+    href: null,  // This completely hides the tab
+  }}
+/>
+
+<Tabs.Screen
+  name="MusicListScreen"
+  options={{
+    headerShown: false,
+    href: null,  // This completely hides the tab
+  }}
+/>
+
 
 
         </Tabs>

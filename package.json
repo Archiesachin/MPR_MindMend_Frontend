@@ -4,7 +4,8 @@
     "expo-av": "^15.0.2",
     "expo-linear-gradient": "^14.0.2",
     "nativewind": "^4.1.23",
-    "react-native-slider": "^0.11.0"
+    "react-native-slider": "^0.11.0",
+    "react-native-video": "^6.11.0"
   },
   "devDependencies": {
     "tailwindcss": "^3.3.2"

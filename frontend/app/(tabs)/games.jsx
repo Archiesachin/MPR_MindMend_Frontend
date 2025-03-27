@@ -24,7 +24,7 @@ const MeditationGuide = () => (
 );
 
 const MusicTherapy = () => (
-  <Link href="/MusicTherapyScreen" style={styles.gameBox}>
+  <Link href="/MusicListScreen" style={styles.gameBox}>
      <View style={styles.textContainer}>
     <Text style={styles.gameTitle}>Music Therapy</Text>
     <Text style={styles.gameDescription}>Immerse yourself in soothing melodies designed to calm the mind, reduce stress, and promote emotional well-being.</Text>
