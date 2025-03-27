@@ -365,9 +365,7 @@ const Home = () => {
           </Link>
           <View style={styles.bodyGap} />
           <TouchableOpacity
-            onPress={() => {
-              // handle onPress
-            }}>
+            onPress={() => sheet.current.close()}>
             <View style={styles.btnSecondary}>
               <Text style={styles.btnSecondaryText}>Cancel</Text>
             </View>
