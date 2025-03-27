@@ -20,7 +20,7 @@ import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { Audio } from "expo-av";
 import botAvatar from "../../assets/images/logo-circle.png";
-import logo from '../../assets/images/logo-circle.png';
+import logo from "../../assets/images/logo-circle.png";
 import userAvatar from "../../assets/images/profile.png";
 import background from "../../assets/images/new-background.jpg";
 import RBSheet from "react-native-raw-bottom-sheet";
@@ -67,6 +67,7 @@ const Home = () => {
       };
 
       setMessages((prev) => [...prev, newMessage]);
+      if (data.task !== "") sheet.current.open(); // Open the bottom sheet for task notification
     });
 
     return () => {
@@ -261,25 +262,25 @@ const Home = () => {
     await sound.playAsync();
   };
 
-
-
-
   return (
-   <ImageBackground
-           source={background} // Update the path as per your folder structure
-             style={styles.background}
-             resizeMode="cover" >
-       <View style={styles.container}>
-         <View style={styles.header}>
-                 <Image source={logo} resizeMode="contain" style={styles.icon} />
-                 <Text style={styles.appName}>MindMend</Text>
-                 <TouchableOpacity style={{ marginRight: 10 }} onPress={() => sheet.current.open()}>
-  <FontAwesome name="ellipsis-v" size={24} color="black" />
-</TouchableOpacity>
-               </View>
+    <ImageBackground
+      source={background} // Update the path as per your folder structure
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Image source={logo} resizeMode="contain" style={styles.icon} />
+          <Text style={styles.appName}>MindMend</Text>
+          <TouchableOpacity
+            style={{ marginRight: 10 }}
+            onPress={() => sheet.current.open()}
+          >
+            <FontAwesome name="ellipsis-v" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
         <ScrollView contentContainerStyle={styles.chatContainer}>
           {messages.map((item, index) => {
-            console.log("Received message:", item);
             return (
               <View
                 key={index}
@@ -317,8 +318,8 @@ const Home = () => {
                   <Text style={styles.timestamp}>{item.timestamp}</Text>
                 </View>
                 {item.sender === "user" && (
-        <Image source={userAvatar} style={styles.useravatar} />
-      )}
+                  <Image source={userAvatar} style={styles.useravatar} />
+                )}
               </View>
             );
           })}
@@ -346,32 +347,42 @@ const Home = () => {
           </TouchableOpacity>
         </View>
         <RBSheet
-        customStyles={{ container: styles.Rbcontainer }}
-        height={300}
-        openDuration={250}
-        ref={sheet}>
-        <View style={[styles.Rbheader, { flexDirection: "row", alignItems: "center" }]}>
-        <FontAwesome name="bell" size={24} color="black" style={{ marginRight: 8 }} />
-          <Text style={styles.RbheaderTitle}>Task Notification</Text>
-        </View>
-        <View style={styles.Rbbody}>
-          <Text style={styles.RbbodyText}>
-            A new task is available
-            <Text style={{ fontWeight: '600' }}> do you want to proceed</Text>?
-           
-          </Text>
-          <Link href="/tasks" style={styles.btn}>
-          <Text style={styles.btnText}>Go To Task</Text>
-          </Link>
-          <View style={styles.bodyGap} />
-          <TouchableOpacity
-            onPress={() => sheet.current.close()}>
-            <View style={styles.btnSecondary}>
-              <Text style={styles.btnSecondaryText}>Cancel</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </RBSheet>
+          customStyles={{ container: styles.Rbcontainer }}
+          height={300}
+          openDuration={250}
+          ref={sheet}
+        >
+          <View
+            style={[
+              styles.Rbheader,
+              { flexDirection: "row", alignItems: "center" },
+            ]}
+          >
+            <FontAwesome
+              name="bell"
+              size={24}
+              color="black"
+              style={{ marginRight: 8 }}
+            />
+            <Text style={styles.RbheaderTitle}>Task Notification</Text>
+          </View>
+          <View style={styles.Rbbody}>
+            <Text style={styles.RbbodyText}>
+              A new task is available
+              <Text style={{ fontWeight: "600" }}> do you want to proceed</Text>
+              ?
+            </Text>
+            <Link href="/tasks" style={styles.btn}>
+              <Text style={styles.btnText}>Go To Task</Text>
+            </Link>
+            <View style={styles.bodyGap} />
+            <TouchableOpacity onPress={() => sheet.current.close()}>
+              <View style={styles.btnSecondary}>
+                <Text style={styles.btnSecondaryText}>Cancel</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </RBSheet>
       </View>
     </ImageBackground>
   );
@@ -503,13 +514,13 @@ const styles = {
   },
   Rbheader: {
     borderBottomWidth: 1,
-    borderColor: '#efefef',
+    borderColor: "#efefef",
     padding: 16,
   },
   RbheaderTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    textAlign: 'center',
+    fontWeight: "600",
+    textAlign: "center",
   },
   /** Body */
   Rbbody: {
@@ -518,49 +529,49 @@ const styles = {
   RbbodyText: {
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: '400',
-    color: '#0e0e0e',
+    fontWeight: "400",
+    color: "#0e0e0e",
     marginBottom: 24,
-    textAlign: 'center',
+    textAlign: "center",
   },
   bodyGap: {
     marginBottom: 12,
   },
   /** Button */
   btn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign:'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderWidth: 1,
-    backgroundColor: '#38b6ff',
-    borderColor: '#38b6ff',
+    backgroundColor: "#38b6ff",
+    borderColor: "#38b6ff",
   },
   btnText: {
     fontSize: 17,
     lineHeight: 24,
-    fontWeight: '600',
-    color: '#fff',
+    fontWeight: "600",
+    color: "#fff",
   },
   btnSecondary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderWidth: 1,
-    backgroundColor: 'transparent',
-    borderColor: '#dddce0',
+    backgroundColor: "transparent",
+    borderColor: "#dddce0",
   },
   btnSecondaryText: {
     fontSize: 17,
     lineHeight: 24,
-    fontWeight: '600',
-    color: '#000',
+    fontWeight: "600",
+    color: "#000",
   },
 };
 
