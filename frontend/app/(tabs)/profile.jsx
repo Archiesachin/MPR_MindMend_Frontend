@@ -1,63 +1,109 @@
-import { StyleSheet, Text, View, Image, ImageBackground , TouchableOpacity} from 'react-native';
-import React , {useState}from 'react';
-import logo from '../../assets/images/logo-circle.png'
-import background from '../../assets/images/new-background.jpg'
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ImageBackground,
+  TouchableOpacity,
+} from "react-native";
+import React, { useState, useEffect } from "react";
+import logo from "../../assets/images/logo-circle.png";
+import background from "../../assets/images/new-background.jpg";
 import { FontAwesome } from "@expo/vector-icons";
-import CustomSlider from '../../components/CustomSlider';
+import CustomSlider from "../../components/CustomSlider";
+import axios from "axios";
+import { API_URL } from "../context/AuthContext";
+import * as SecureStore from "expo-secure-store";
 
 const Profile = () => {
-  const user = {
-    profilePic: require('../../assets/images/profile.png'), // Replace with actual image path
-    username: 'John Doe',
-    email: 'johndoe@example.com',
-    age: 25,
-    gender: 'Male',
-  };
+  const [user, setUser] = useState({
+    username: "",
+    email: "",
+    phoneNumber: 0,
+    age: 0,
+    gender: "",
+    profilePic: require("../../assets/images/profile.png"),
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = await SecureStore.getItemAsync("token");
+        const { data } = await axios.get(`${API_URL}/api/protected`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const info = data.user;
+
+        user.username = info.fullName;
+        user.email = info.email;
+        user.phoneNumber = info.phoneNumber;
+        user.age = info.age;
+        user.gender = info.gender;
+
+        console.log("User data:", user);
+      } catch (error) {
+        console.log("Error fetching user data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   const [moodScore, setMoodScore] = useState(3); // Hardcoded initial value
 
   return (
     <ImageBackground
-            source={background} // Update the path as per your folder structure
-              style={styles.background}
-              resizeMode="cover" >
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-              <Image source={logo} resizeMode="contain" style={styles.icon} />
-              <Text style={styles.appName}>MindMend</Text>
-              <TouchableOpacity style={{ marginRight: 10 }}>
-              <FontAwesome name="ellipsis-v" size={24} color="black"  />
-            </TouchableOpacity>
+      source={background} // Update the path as per your folder structure
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Image source={logo} resizeMode="contain" style={styles.icon} />
+          <Text style={styles.appName}>MindMend</Text>
+          <TouchableOpacity style={{ marginRight: 10 }}>
+            <FontAwesome name="ellipsis-v" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Profile Info */}
+        <View style={styles.profileContainer}>
+          <Image source={user.profilePic} style={styles.profileImage} />
+          <Text style={styles.username}>{user.username}</Text>
+        </View>
+
+        {/* User Details */}
+        <View style={styles.infoContainer}>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Email:</Text>
+            <Text style={styles.infoValue}>{user.email}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Phone:</Text>
+            <Text style={styles.infoValue}>{user.phoneNumber}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Age:</Text>
+            <Text style={styles.infoValue}>{user.age}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Gender:</Text>
+            <Text style={styles.infoValue}>{user.gender}</Text>
+          </View>
+        </View>
+        <View style={styles.sliderContainer}>
+          <CustomSlider
+            min={1}
+            max={5}
+            step={1}
+            initialValue={3}
+            onValueChange={setMoodScore}
+          />
+        </View>
       </View>
-
-      {/* Profile Info */}
-      <View style={styles.profileContainer}>
-        <Image source={user.profilePic} style={styles.profileImage} />
-        <Text style={styles.username}>{user.username}</Text>
-      </View>
-
-      {/* User Details */}
-      <View style={styles.infoContainer}>
-  <View style={styles.infoRow}>
-    <Text style={styles.infoLabel}>Email:</Text>
-    <Text style={styles.infoValue}>{user.email}</Text>
-  </View>
-  <View style={styles.infoRow}>
-    <Text style={styles.infoLabel}>Age:</Text>
-    <Text style={styles.infoValue}>{user.age}</Text>
-  </View>
-  <View style={styles.infoRow}>
-    <Text style={styles.infoLabel}>Gender:</Text>
-    <Text style={styles.infoValue}>{user.gender}</Text>
-  </View>
-</View>
-  <View style={styles.sliderContainer}>
-      <CustomSlider min={1} max={5} step={1} initialValue={3} onValueChange={setMoodScore}/>
-    </View>
-
-    </View>
-    
     </ImageBackground>
   );
 };
@@ -78,28 +124,28 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
-    justifyContent:'space-around'
+    justifyContent: "space-around",
   },
-  icon: { 
-    marginLeft: 10, 
-    height: 80, 
-    width: 60, 
-    marginRight: 10 
+  icon: {
+    marginLeft: 10,
+    height: 80,
+    width: 60,
+    marginRight: 10,
   },
 
-  appName: { 
-    fontSize: 18, 
-    fontWeight: "bold", 
-    color: "#000", 
-    flex: 1 
+  appName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#000",
+    flex: 1,
   },
   headerText: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
   },
   profileContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   profileImage: {
@@ -110,15 +156,15 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   infoContainer: {
     width: "90%",
     alignSelf: "center",
     marginTop: 20,
     paddingBottom: 10,
-    borderBottomWidth:0.5
+    borderBottomWidth: 0.5,
   },
   infoRow: {
     flexDirection: "row",
@@ -139,9 +185,8 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
 
-  sliderContainer:{
+  sliderContainer: {
     marginTop: 20,
     // alignItems:'center'
   },
-
 });
