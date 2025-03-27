@@ -49,7 +49,7 @@ const tasksHistoryScreen = () => {
         <Text style={styles.appName}>MindMend</Text>
         <TouchableOpacity
           style={{ marginRight: 10 }}
-          onPress={() => router.push("/games")}
+          onPress={() => router.push("/tasks")}
         >
           <Text style={styles.back}>Back</Text>
         </TouchableOpacity>
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     color: "#777",
     marginTop: 5,
   },
-  noTaskText: {
+  noTasks: {
     fontSize: 16,
     color: "#888",
     textAlign: "center",
