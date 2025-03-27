@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,12 @@ import {
 } from "react-native";
 import { io } from "socket.io-client";
 import { FontAwesome } from "@expo/vector-icons";
-import { API_URL } from "../context/AuthContext";
+import {
+  API_URL,
+  ASSEMBLY_API_KEY,
+  ASSEMBLY_API_SECRET,
+  GROQ_API_KEY,
+} from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { Audio } from "expo-av";
@@ -18,6 +23,7 @@ import logo from "../../assets/images/logo-circle.png";
 import botAvatar from "../../assets/images/logo-circle.png";
 import userAvatar from "../../assets/images/profile.png";
 import background from "../../assets/images/new-background.jpg";
+import RBSheet from "react-native-raw-bottom-sheet";
 
 const socket = io(API_URL);
 
@@ -26,19 +32,25 @@ const Home = () => {
   const [input, setInput] = useState("");
   const [recording, setRecording] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
+  const sheet = useRef(null);
 
   useEffect(() => {
     const getMessages = async () => {
       try {
-        const userId = await SecureStore.getItemAsync("userId");
-        if (!userId) {
+        const token = await SecureStore.getItemAsync("token");
+        if (!token) {
           router.push("/sign-in");
         } else {
-          const { data } = await axios.get(`${API_URL}/api/conversations/${userId}`);
+          const { data } = await axios.get(`${API_URL}/api/conversations`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          console.log("Fetched Messages:", data.conversation);
           setMessages(data.conversation);
         }
       } catch (error) {
-        console.log(error);
+        console.log("Error fetching messages:", error);
       }
     };
     getMessages();
@@ -60,6 +72,112 @@ const Home = () => {
       socket.off("receive_message");
     };
   }, []);
+
+  // React Native code for transcribing audio with AssemblyAI using HTTP requests
+
+  // Step 1: Upload the audio file
+  const uploadAudio = async (audioUri) => {
+    try {
+      // Get the audio file
+      const audioFile = await fetch(audioUri);
+      const audioBlob = await audioFile.blob();
+
+      // Upload to AssemblyAI
+      const uploadResponse = await fetch(
+        "https://api.assemblyai.com/v2/upload",
+        {
+          method: "POST",
+          headers: {
+            authorization: ASSEMBLY_API_SECRET,
+            "content-type": "application/octet-stream",
+          },
+          body: audioBlob,
+        }
+      );
+
+      const uploadResult = await uploadResponse.json();
+      return uploadResult.upload_url;
+    } catch (error) {
+      console.error("Error uploading audio:", error);
+      throw error;
+    }
+  };
+
+  // Step 2: Submit the transcription request
+  const submitTranscriptionRequest = async (audioUrl) => {
+    try {
+      const response = await fetch("https://api.assemblyai.com/v2/transcript", {
+        method: "POST",
+        headers: {
+          authorization: ASSEMBLY_API_SECRET,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          audio_url: audioUrl,
+          // Add any other parameters as needed
+          // speaker_labels: true,
+          // language_code: 'en',
+        }),
+      });
+
+      const result = await response.json();
+      return result.id; // Return the transcript ID
+    } catch (error) {
+      console.error("Error submitting transcription request:", error);
+      throw error;
+    }
+  };
+
+  // Step 3: Poll for the transcription result
+  const getTranscriptionResult = async (transcriptId) => {
+    try {
+      const pollingEndpoint = `https://api.assemblyai.com/v2/transcript/${transcriptId}`;
+
+      while (true) {
+        const response = await fetch(pollingEndpoint, {
+          method: "GET",
+          headers: {
+            authorization: ASSEMBLY_API_SECRET,
+            "content-type": "application/json",
+          },
+        });
+
+        const result = await response.json();
+
+        if (result.status === "completed") {
+          return result;
+        } else if (result.status === "error") {
+          throw new Error(`Transcription failed: ${result.error}`);
+        } else {
+          // Wait for 3 seconds before polling again
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+        }
+      }
+    } catch (error) {
+      console.error("Error getting transcription result:", error);
+      throw error;
+    }
+  };
+
+  // Example usage in a React Native component
+  const transcribeAudio = async (audioUri) => {
+    try {
+      // Step 1: Upload the audio file
+      const uploadUrl = await uploadAudio(audioUri);
+
+      // Step 2: Submit the transcription request
+      const transcriptId = await submitTranscriptionRequest(uploadUrl);
+
+      // Step 3: Poll for the transcription result
+      const transcriptionResult = await getTranscriptionResult(transcriptId);
+
+      console.log("Transcription:", transcriptionResult.text);
+      return transcriptionResult.text;
+    } catch (error) {
+      console.error("Transcription process failed:", error);
+      throw error;
+    }
+  };
 
   const sendMessage = async () => {
     if (input.trim().length === 0) return;
@@ -105,91 +223,111 @@ const Home = () => {
 
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();
+    if (!uri) {
+      console.error("Audio URI is undefined.");
+      return;
+    }
+
     setRecording(null);
 
-    const timestamp = new Date().toISOString();
-    const userMessage = {
-      sender: "user",
-      content: uri,
-      timestamp,
-      type: "audio",
-    };
+    // Send audio for transcription
+    const transcription = await transcribeAudio(uri);
+    console.log("Transcription:", transcription);
 
-    setMessages((prev) => [...prev, userMessage]);
-    socket.emit("send_message", { userMessage });
+    if (transcription) {
+      const timestamp = new Date().toISOString();
+      const userMessage = {
+        sender: "user",
+        content: transcription,
+        uri,
+        timestamp,
+        type: "audio",
+      };
+
+      const userId = await SecureStore.getItemAsync("userId");
+
+      setMessages((prev) => [...prev, userMessage]);
+      socket.emit("send_message", { userMessage, userId });
+    }
   };
 
   const playAudio = async (uri) => {
+    if (!uri) {
+      console.error("Audio URI is undefined.");
+      return;
+    }
     const { sound } = await Audio.Sound.createAsync({ uri });
     await sound.playAsync();
   };
 
   return (
-    <ImageBackground source={background} style={styles.background} resizeMode="cover">
+    <ImageBackground
+      source={background}
+      style={styles.background}
+      resizeMode="cover"
+    >
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Image source={logo} resizeMode="contain" style={styles.icon} />
-          <Text style={styles.appName}>Chat with AI</Text>
-          <TouchableOpacity style={{ marginRight: 10 }}>
-            <FontAwesome name="ellipsis-v" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Chat Messages */}
         <ScrollView contentContainerStyle={styles.chatContainer}>
-          {messages.map((item, index) => (
-            <View
-              key={index}
-              style={[
-                styles.messageContainer,
-                item.sender === "user" ? styles.userMessage : styles.botMessage,
-              ]}
-            >
-              {item.sender === "ai" && <Image source={botAvatar} style={styles.avatar} />}
-
+          {messages.map((item, index) => {
+            console.log("Received message:", item);
+            return (
               <View
+                key={index}
                 style={[
-                  styles.messageBubble,
-                  item.sender === "user" ? styles.userBubble : styles.botBubble,
+                  styles.messageContainer,
+                  item.sender === "user"
+                    ? styles.userMessage
+                    : styles.botMessage,
                 ]}
               >
-                {item.type === "text" ? (
-                  <Text style={styles.messageText}>{item.content}</Text>
-                ) : (
-                  <TouchableOpacity onPress={() => playAudio(item.content)}>
-                    <FontAwesome name="play-circle" size={24} color="#38b6ff" />
-                    <Text style={styles.audioText}>Voice Note</Text>
-                  </TouchableOpacity>
+                {item.sender === "ai" && (
+                  <Image source={botAvatar} style={styles.avatar} />
                 )}
-                <Text style={styles.timestamp}>{item.timestamp}</Text>
-              </View>
 
-              {item.sender === "user" && (
-                <Image source={userAvatar} style={styles.useravatar} resizeMode="contain" />
-              )}
-            </View>
-          ))}
+                <View
+                  style={[
+                    styles.messageBubble,
+                    item.sender === "user"
+                      ? styles.userBubble
+                      : styles.botBubble,
+                  ]}
+                >
+                  {item.type === "text" ? (
+                    <Text style={styles.messageText}>{item.content}</Text>
+                  ) : (
+                    <TouchableOpacity onPress={() => playAudio(item.uri)}>
+                      <FontAwesome
+                        name="play-circle"
+                        size={24}
+                        color="#38b6ff"
+                      />
+                      <Text style={styles.audioText}>Voice Note</Text>
+                    </TouchableOpacity>
+                  )}
+                  <Text style={styles.timestamp}>{item.timestamp}</Text>
+                </View>
+              </View>
+            );
+          })}
         </ScrollView>
 
-        {/* Input Field */}
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
             placeholder="Type a message..."
-            placeholderTextColor="#888"
             value={input}
             onChangeText={setInput}
           />
-
-          {/* Voice Recording Button */}
           <TouchableOpacity
             style={styles.voiceButton}
             onPress={isRecording ? stopRecording : startRecording}
           >
-            <FontAwesome name={isRecording ? "stop" : "microphone"} size={18} color="white" />
+            <FontAwesome
+              name={isRecording ? "stop" : "microphone"}
+              size={18}
+              color="white"
+            />
           </TouchableOpacity>
-
-          {/* Send Message Button */}
           <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
             <FontAwesome name="paper-plane" size={18} color="white" />
           </TouchableOpacity>
@@ -200,20 +338,27 @@ const Home = () => {
 };
 
 const styles = {
-  background: { 
-    flex: 1, 
-    width: "100%", 
-    height: "100%" 
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
   },
 
-  container: { 
-    flex: 1, 
-    backgroundColor: "rgba(255, 255, 255, 0.2)" 
+  container: {
+    flex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
 
-  chatContainer: { 
-    padding: 10, marginTop: 20 },
-  header: { flexDirection: "row", alignItems: "center", padding: 10, justifyContent: "space-around" },
+  chatContainer: {
+    padding: 10,
+    marginTop: 20,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    justifyContent: "space-around",
+  },
   icon: { marginLeft: 10, height: 80, width: 60, marginRight: 10 },
   appName: { fontSize: 18, fontWeight: "bold", color: "#000", flex: 1 },
   messageContainer: {
@@ -230,7 +375,6 @@ const styles = {
     alignSelf: "flex-start",
     justifyContent: "flex-start",
   },
-
 
   messageBubble: {
     padding: 14,
@@ -285,14 +429,30 @@ const styles = {
     height: 35,
     borderRadius: 20,
     marginHorizontal: 8,
-    borderWidth:0.5,
-    marginBottom: 30
+    borderWidth: 0.5,
+    marginBottom: 30,
   },
- 
+
   inputContainer: { flexDirection: "row", alignItems: "center", padding: 10 },
-  input: { flex: 1, padding: 10, borderRadius: 20, backgroundColor: "#fff", fontSize: 16 },
-  sendButton: { padding: 12, borderRadius: 20, backgroundColor: "#38b6ff", marginLeft: 8 },
-  voiceButton: { padding: 12, borderRadius: 20, backgroundColor: "#ff5252", marginLeft: 8 },
+  input: {
+    flex: 1,
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    fontSize: 16,
+  },
+  sendButton: {
+    padding: 12,
+    borderRadius: 20,
+    backgroundColor: "#38b6ff",
+    marginLeft: 8,
+  },
+  voiceButton: {
+    padding: 12,
+    borderRadius: 20,
+    backgroundColor: "#ff5252",
+    marginLeft: 8,
+  },
   audioText: { color: "#38b6ff", marginTop: 4, textAlign: "center" },
 };
 
