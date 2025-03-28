@@ -10,12 +10,7 @@ import {
 } from "react-native";
 import { io } from "socket.io-client";
 import { FontAwesome } from "@expo/vector-icons";
-import {
-  API_URL,
-  ASSEMBLY_API_KEY,
-  ASSEMBLY_API_SECRET,
-  GROQ_API_KEY,
-} from "../context/AuthContext";
+import { API_URL, ASSEMBLY_API_SECRET } from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { Audio } from "expo-av";
@@ -25,6 +20,7 @@ import userAvatar from "../../assets/images/profile.png";
 import background from "../../assets/images/new-background.jpg";
 import RBSheet from "react-native-raw-bottom-sheet";
 import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 
 const socket = io(API_URL);
 
@@ -34,6 +30,7 @@ const Home = () => {
   const [recording, setRecording] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const sheet = useRef(null);
+  const router = useRouter();
 
   useEffect(() => {
     const getMessages = async () => {
@@ -262,6 +259,12 @@ const Home = () => {
     await sound.playAsync();
   };
 
+  const handleLogout = async () => {
+    await SecureStore.deleteItemAsync("token");
+    await SecureStore.deleteItemAsync("userId");
+    router.push("/sign-in");
+  };
+
   return (
     <ImageBackground
       source={background} // Update the path as per your folder structure
@@ -272,11 +275,8 @@ const Home = () => {
         <View style={styles.header}>
           <Image source={logo} resizeMode="contain" style={styles.icon} />
           <Text style={styles.appName}>MindMend</Text>
-          <TouchableOpacity
-            style={{ marginRight: 10 }}
-            onPress={() => sheet.current.open()}
-          >
-            <FontAwesome name="ellipsis-v" size={24} color="black" />
+          <TouchableOpacity style={{ marginRight: 10 }} onPress={handleLogout}>
+            <Text>Logout</Text>
           </TouchableOpacity>
         </View>
         <ScrollView contentContainerStyle={styles.chatContainer}>

@@ -60,11 +60,11 @@ const tasksHistoryScreen = () => {
         {tasks.filter((task) => task.completed == false).length > 0 ? (
           tasks
             .filter((task) => task.completed == false) // Filter only completed tasks
-            .map((task, index) => (
-              <View key={index} style={styles.taskItem}>
+            .map((task) => (
+              <View key={task._id} style={styles.taskItem}>
                 <View style={styles.taskCard}>
                   <Text style={styles.taskText}>{task.description}</Text>
-                  <Text style={styles.taskDesc}>Feedback</Text>
+                  <Text style={styles.taskDesc}>{task.feedback}</Text>
                 </View>
               </View>
             ))
