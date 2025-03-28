@@ -6,7 +6,7 @@ import background from '../../assets/images/new-background.jpg'
 import { FontAwesome } from "@expo/vector-icons";
 
 const BreathingBubbles = () => (
-  <Link href="/breathingBubbleGuide" style={styles.gameBox}>
+  <Link href="/BreathingBubbleScreen" style={styles.gameBox}>
      <View style={styles.textContainer}>
     <Text style={styles.gameTitle}>Breathing Bubbles</Text>
     <Text style={styles.gameDescription}>Practice mindfulness by focusing on the present moment.</Text>
@@ -14,11 +14,11 @@ const BreathingBubbles = () => (
   </Link>
 );
 
-const MeditationGuide = () => (
-  <Link href="/MeditationGuideScreen" style={styles.gameBox}>
+const Feelopoly = () => (
+  <Link href="/Feelopoly" style={styles.gameBox}>
      <View style={styles.textContainer}>
-    <Text style={styles.gameTitle}>Meditation Guide</Text>
-    <Text style={styles.gameDescription}>A guided meditation to help you relax and calm your mind.</Text>
+    <Text style={styles.gameTitle}>Feelopoly</Text>
+    <Text style={styles.gameDescription}>A board game that helps children and adults identify and express emotions. </Text>
     </View>
   </Link>
 );
@@ -35,9 +35,9 @@ const MusicTherapy = () => (
 const CognitiveRestructuring = () => (
   <Link href="/CognitiveRestructuringScreen" style={styles.gameBox}>
     <View style={styles.textContainer}>
-      <Text style={styles.gameTitle}>Cognitive Restructuring</Text>
+      <Text style={styles.gameTitle}>CBT Lingo</Text>
       <Text style={styles.gameDescription}>
-        Challenge negative thoughts and reframe them positively.
+      A bingo game that uses CBT terminology, helping patients learn and remember key concepts. 
       </Text>
     </View>
   </Link>
@@ -61,7 +61,7 @@ const Games = () => {
       <ScrollView style={styles.gameList}>
         
         <BreathingBubbles />
-        <MeditationGuide />
+        <Feelopoly/>
         <MusicTherapy />
         <CognitiveRestructuring />
       </ScrollView>

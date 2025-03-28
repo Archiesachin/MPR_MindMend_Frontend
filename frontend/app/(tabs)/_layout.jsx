@@ -127,6 +127,21 @@ const TabsLayout = () => {
   }}
 />
 
+<Tabs.Screen
+  name="Feelopoly"
+  options={{
+    headerShown: false,
+    href: null,  // This completely hides the tab
+  }}
+/>
+<Tabs.Screen
+  name="BreathingBubbleScreen"
+  options={{
+    headerShown: false,
+    href: null,  // This completely hides the tab
+  }}
+/>
+
 
 
         </Tabs>
