@@ -21,18 +21,22 @@ import * as SecureStore from "expo-secure-store";
 const Tasks = () => {
   const [feedback, setFeedback] = useState("");
   const [summary, setSummary] = useState("");
-  const [tasks, setTasks] = useState([]);
+  const [taskId, setTaskId] = useState("");
+  const [task, setTask] = useState();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = await SecureStore.getItemAsync("token");
-        const { data } = await axios.get(`${API_URL}/api/tasks`, {
+        const { data } = await axios.get(`${API_URL}/api/singleTask`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setTasks(data.tasks); // Store tasks in state
+        setTask(data.task); // Store tasks in state
+        setTaskId(data.task._id);
+        console.log("Task data:", task);
+        console.log("Task ID:", taskId);
       } catch (error) {
         console.log("Error fetching tasks:", error);
       }
@@ -41,12 +45,32 @@ const Tasks = () => {
   }, []);
   const [moodScore, setMoodScore] = useState(3); // Hardcoded initial value
 
-  const handleSubmit = () => {
-    if (feedback.trim().length === 0) return;
-    setSummary(`Summary: ${feedback.substring(0, 50)}...`); // Example: Show first 50 chars
-    setFeedback(""); // Clear input field after submission
-    setSummary(`Summary: ${feedback.substring(0, 50)}...`); // Example: Show first 50 chars
-    setFeedback(""); // Clear input field after submission
+  const handleSubmit = async () => {
+    try {
+      if (feedback.trim().length === 0) return;
+      console.log("Feedback:", feedback);
+      const token = await SecureStore.getItemAsync("token");
+      console.log("Token:", token);
+      if (!token) router.push("/sign-in");
+      const response = await axios.post(
+        `${API_URL}/api/feedback/${taskId}`,
+        { feedback: feedback },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log(response.data.message);
+
+      if (response.status === 200) {
+        setSummary(response.data.summary);
+        setFeedback("");
+      }
+    } catch (error) {
+      console.log("Error submitting feedback:", error);
+    }
   };
 
   const router = useRouter();
@@ -74,16 +98,14 @@ const Tasks = () => {
         <Text style={styles.taskTitle}>Today's Tasks</Text>
 
         <ScrollView style={styles.taskList}>
-          {tasks.length > 0 ? (
-            tasks.map((task, index) => (
-              <View key={index} style={styles.taskItem}>
-                {task.completed == false ? (
-                  <Text style={styles.taskText}>{task.description}</Text>
-                ) : (
-                  <Text style={styles.noTasks}>No pending tasks</Text>
-                )}
-              </View>
-            ))
+          {task ? (
+            <View key={taskId} style={styles.taskItem}>
+              {task.completed == false ? (
+                <Text style={styles.taskText}>{task.description}</Text>
+              ) : (
+                <Text style={styles.noTasks}>No pending tasks</Text>
+              )}
+            </View>
           ) : (
             <Text style={styles.noTasks}>No tasks available</Text>
           )}
