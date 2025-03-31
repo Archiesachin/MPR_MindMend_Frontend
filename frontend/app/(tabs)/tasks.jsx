@@ -134,7 +134,9 @@ const Tasks = () => {
         </TouchableOpacity>
 
         {/* Feedback Summary */}
-        {summary ? <Text style={styles.summary}>{summary}</Text> : null}
+        <ScrollView style={styles.scrollContainer}>
+          {summary ? <Text style={styles.summary}>{summary}</Text> : null}
+        </ScrollView>
 
         <CustomSlider
           min={1}
@@ -235,4 +237,5 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     marginHorizontal: 20,
   },
+  scrollContainer: { maxHeight: 200 },
 });

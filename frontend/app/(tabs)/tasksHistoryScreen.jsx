@@ -29,6 +29,8 @@ const tasksHistoryScreen = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log("Tasks data:", data.tasks);
+        
         setTasks(data.tasks); // Store tasks in state
       } catch (error) {
         console.log("Error fetching tasks:", error);
@@ -57,9 +59,9 @@ const tasksHistoryScreen = () => {
 
       {/* Task List */}
       <ScrollView style={styles.taskList}>
-        {tasks.filter((task) => task.completed == false).length > 0 ? (
+        {tasks.filter((task) => task.completed == true).length > 0 ? (
           tasks
-            .filter((task) => task.completed == false) // Filter only completed tasks
+            .filter((task) => task.completed == true) // Filter only completed tasks
             .map((task) => (
               <View key={task._id} style={styles.taskItem}>
                 <View style={styles.taskCard}>
