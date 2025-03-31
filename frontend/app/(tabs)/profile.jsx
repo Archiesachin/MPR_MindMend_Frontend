@@ -19,8 +19,8 @@ const Profile = () => {
   const [user, setUser] = useState({
     username: "",
     email: "",
-    phoneNumber: 0,
-    age: 0,
+    phoneNumber: null,
+    age: null,
     gender: "",
     profilePic: require("../../assets/images/profile.png"),
   });
@@ -37,11 +37,14 @@ const Profile = () => {
 
         const info = data.user;
 
-        user.username = info.fullName;
-        user.email = info.email;
-        user.phoneNumber = info.phoneNumber;
-        user.age = info.age;
-        user.gender = info.gender;
+        setUser({
+          username: info.fullName,
+          email: info.email,
+          phoneNumber: info.phoneNumber,
+          age: info.age,
+          gender: info.gender,
+          profilePic: info.profilePic || require("../../assets/images/profile.png"),
+        });
 
         console.log("User data:", user);
       } catch (error) {
