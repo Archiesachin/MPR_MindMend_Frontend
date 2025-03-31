@@ -23,6 +23,7 @@ const Tasks = () => {
   const [summary, setSummary] = useState("");
   const [taskId, setTaskId] = useState("");
   const [task, setTask] = useState();
+  const [moodScore, setMoodScore] = useState(3); // Hardcoded initial value
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,6 +34,11 @@ const Tasks = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+
+        if (data.error) {
+          console.log("Error fetching tasks:", data.error);
+        }
+
         setTask(data.task); // Store tasks in state
         setTaskId(data.task._id);
         console.log("Task data:", task);
@@ -43,7 +49,6 @@ const Tasks = () => {
     };
     fetchData();
   }, []);
-  const [moodScore, setMoodScore] = useState(3); // Hardcoded initial value
 
   const handleSubmit = async () => {
     try {
@@ -65,7 +70,10 @@ const Tasks = () => {
       console.log(response.data.message);
 
       if (response.status === 200) {
+        console.log("Feedback submitted successfully:", response.data);
+
         setSummary(response.data.summary);
+        setMoodScore(response.data.rating);
         setFeedback("");
       }
     } catch (error) {
@@ -133,7 +141,7 @@ const Tasks = () => {
           max={5}
           step={1}
           initialValue={3}
-          onValueChange={setMoodScore}
+          value={moodScore}
         />
       </View>
     </ImageBackground>
