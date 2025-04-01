@@ -23,12 +23,12 @@ const Tasks = () => {
   const [summary, setSummary] = useState("");
   const [taskId, setTaskId] = useState("");
   const [task, setTask] = useState();
-  const [moodScore, setMoodScore] = useState(3); // Hardcoded initial value
+  const [moodScore, setMoodScore] = useState(0); // Hardcoded initial value
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = await SecureStore.getItemAsync("token");
+        const token = await SecureStore.getItemAsync("token"); 
         const { data } = await axios.get(`${API_URL}/api/singleTask`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -101,10 +101,8 @@ const Tasks = () => {
             <Text style={styles.back}>History</Text>
           </TouchableOpacity>
         </View>
-
         {/* Task Section */}
         <Text style={styles.taskTitle}>Today's Tasks</Text>
-
         <ScrollView style={styles.taskList}>
           {task ? (
             <View key={taskId} style={styles.taskItem}>
@@ -118,7 +116,6 @@ const Tasks = () => {
             <Text style={styles.noTasks}>No tasks available</Text>
           )}
         </ScrollView>
-
         {/* Feedback Input */}
         <TextInput
           style={styles.input}
@@ -127,24 +124,15 @@ const Tasks = () => {
           onChangeText={setFeedback}
           multiline
         />
-
         {/* Submit Button */}
         <TouchableOpacity style={styles.button} onPress={handleSubmit}>
           <Text style={styles.buttonText}>Submit</Text>
         </TouchableOpacity>
-
         {/* Feedback Summary */}
         <ScrollView style={styles.scrollContainer}>
           {summary ? <Text style={styles.summary}>{summary}</Text> : null}
         </ScrollView>
-
-        <CustomSlider
-          min={1}
-          max={5}
-          step={1}
-          initialValue={3}
-          value={moodScore}
-        />
+        <CustomSlider min={0} max={3} step={1} value={moodScore} />;
       </View>
     </ImageBackground>
   );

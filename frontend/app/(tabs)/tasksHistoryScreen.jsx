@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  FlatList,
 } from "react-native";
 import background from "../../assets/images/new-background.jpg";
 import logo from "../../assets/images/logo-circle.png"; // Add your logo image path
@@ -18,6 +19,7 @@ import { API_URL } from "../context/AuthContext";
 
 const tasksHistoryScreen = () => {
   const [tasks, setTasks] = useState([]);
+  const [expandedTasks, setExpandedTasks] = useState({});
   const router = useRouter();
 
   useEffect(() => {
@@ -30,7 +32,7 @@ const tasksHistoryScreen = () => {
           },
         });
         console.log("Tasks data:", data.tasks);
-        
+
         setTasks(data.tasks); // Store tasks in state
       } catch (error) {
         console.log("Error fetching tasks:", error);
@@ -39,13 +41,20 @@ const tasksHistoryScreen = () => {
     fetchData();
   }, []);
 
+  const toggleExpand = (taskId) => {
+    setExpandedTasks((prev) => ({
+      ...prev,
+      [taskId]: !prev[taskId],
+    }));
+  };
+
   return (
     <ImageBackground
       source={background}
       style={styles.background}
       resizeMode="cover"
     >
-      {/* Header Section */}
+      {/* Header */}
       <View style={styles.header}>
         <Image source={logo} resizeMode="contain" style={styles.icon} />
         <Text style={styles.appName}>MindMend</Text>
@@ -58,22 +67,37 @@ const tasksHistoryScreen = () => {
       </View>
 
       {/* Task List */}
-      <ScrollView style={styles.taskList}>
-        {tasks.filter((task) => task.completed == true).length > 0 ? (
-          tasks
-            .filter((task) => task.completed == true) // Filter only completed tasks
-            .map((task) => (
-              <View key={task._id} style={styles.taskItem}>
-                <View style={styles.taskCard}>
-                  <Text style={styles.taskText}>{task.description}</Text>
-                  <Text style={styles.taskDesc}>{task.feedback}</Text>
-                </View>
+      {tasks.length > 0 ? (
+        <FlatList
+          data={tasks}
+          keyExtractor={(task) => task._id}
+          contentContainerStyle={styles.taskList}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.taskItem}
+              onPress={() => toggleExpand(item._id)}
+              activeOpacity={0.8}
+            >
+              <View style={styles.taskCard}>
+                <Text style={styles.taskText}>
+                  {expandedTasks[item._id]
+                    ? item.description
+                    : `${item.description.substring(0, 70)}...`}
+                </Text>
+                {expandedTasks[item._id] && (
+                  <View>
+                    <Text style={styles.feedback}>User Feedback:</Text>
+                    <Text style={styles.taskDesc}>{item.feedback}</Text>
+                  </View>
+                )}
+                <Text style={styles.expandText}>{expandedTasks[item._id]}</Text>
               </View>
-            ))
-        ) : (
-          <Text style={styles.noTasks}>No completed tasks available</Text>
-        )}
-      </ScrollView>
+            </TouchableOpacity>
+          )}
+        />
+      ) : (
+        <Text style={styles.noTasks}>No completed tasks available</Text>
+      )}
     </ImageBackground>
   );
 };
@@ -127,12 +151,12 @@ const styles = StyleSheet.create({
   },
   taskText: {
     fontSize: 16,
-    fontWeight: "bold",
     color: "#333",
   },
   taskDesc: {
-    fontSize: 14,
-    color: "#555",
+    fontSize: 16,
+    color: "#000",
+    fontWeight: 600,
     marginVertical: 5,
   },
   taskDate: {
@@ -145,6 +169,12 @@ const styles = StyleSheet.create({
     color: "#888",
     textAlign: "center",
     marginTop: 20,
+  },
+  feedback: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    marginTop: 30,
   },
 });
 

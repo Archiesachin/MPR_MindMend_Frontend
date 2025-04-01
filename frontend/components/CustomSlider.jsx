@@ -1,63 +1,62 @@
-import React, { useState, useRef } from "react";
-import { View, Text, PanResponder, Animated, StyleSheet } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, Text, Animated, StyleSheet } from "react-native";
 
-const CustomSlider = ({ min = 1, max = 5, step = 0.5, initialValue = 3, onValueChange }) => {
+const CustomSlider = ({ min = 0, max = 3, step = 1, value = 0 }) => {
   const trackWidth = 300; // Slider width
-  const thumbSize = 30; // Thumb button size
+  const thumbSize = 30; // Thumb size
   const stepsCount = (max - min) / step; // Number of steps
   const stepWidth = trackWidth / stepsCount; // Distance per step
 
-  const [sliderValue, setSliderValue] = useState(initialValue);
-  const position = useRef(new Animated.Value((initialValue - min) * stepWidth)).current;
-
-  // Handle gestures using PanResponder
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (evt, gestureState) => {
-        let newX = Math.max(0, Math.min(trackWidth, gestureState.dx));
-        let newValue = Math.round((newX / stepWidth) * 2) / 2 + min; // Round to nearest 0.5
-
-        setSliderValue(newValue);
-        onValueChange(newValue);
-
-        Animated.timing(position, {
-          toValue: newX,
-          duration: 0,
-          useNativeDriver: false,
-        }).start();
-      },
-    })
+  const position = useRef(
+    new Animated.Value((value - min) * stepWidth)
   ).current;
+
+  // Animate the slider to the new value
+  useEffect(() => {
+    if (value !== undefined) {
+      const newPosition = (value - min) * stepWidth;
+      Animated.timing(position, {
+        toValue: newPosition,
+        duration: 300, // Smooth animation duration
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [value]);
 
   return (
     <View style={styles.sliderContainer}>
-      <Text style={styles.moodLabel}>Your Mood Score: {sliderValue.toFixed(1)}</Text>
+      <Text style={styles.moodLabel}>Your Mood Score: {value?.toFixed(1)}</Text>
 
       {/* Track */}
       <View style={styles.track}>
         {/* Markers */}
         {[...Array(stepsCount + 1)].map((_, i) => (
-          <View key={i} style={[styles.marker, { left: i * stepWidth - thumbSize / 4 }]} />
+          <View
+            key={i}
+            style={[styles.marker, { left: i * stepWidth - thumbSize / 4 }]}
+          />
         ))}
 
-        {/* Draggable Thumb */}
+        {/* Animated Thumb */}
         <Animated.View
-          {...panResponder.panHandlers}
-          style={[
-            styles.thumb,
-            { transform: [{ translateX: position }] },
-          ]}
+          style={[styles.thumb, { transform: [{ translateX: position }] }]}
         />
       </View>
 
       {/* Scale Labels */}
       <View style={styles.scale}>
         {[...Array(stepsCount + 1)].map((_, i) => {
-          const value = (i * step + min).toFixed(1); // Ensure decimal formatting
+          const labelValue = (i * step + min).toFixed(1);
           return (
-            <Text key={i} style={[styles.scaleText, sliderValue == value && styles.activeScaleText]}>
-              {value}
+            <Text
+              key={i}
+              style={[
+                styles.scaleText,
+                parseFloat(value) === parseFloat(labelValue) &&
+                  styles.activeScaleText,
+              ]}
+            >
+              {labelValue}
             </Text>
           );
         })}
@@ -73,7 +72,8 @@ const styles = StyleSheet.create({
     width: 320,
     alignItems: "center",
     marginTop: 30,
-    marginLeft: 20,
+    marginLeft: 40,
+    marginBottom: 35,
   },
   moodLabel: {
     fontSize: 16,
@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#38b6ff",
     position: "absolute",
     top: -13,
+    left: -20,
   },
   marker: {
     width: 6,

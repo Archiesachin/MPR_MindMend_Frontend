@@ -372,7 +372,13 @@ const Home = () => {
               <Text style={{ fontWeight: "600" }}> do you want to proceed</Text>
               ?
             </Text>
-            <TouchableOpacity onPress={() => router.push("/tasks")} style={styles.btn}>
+            <TouchableOpacity
+              onPress={() => {
+                sheet.current.close();
+                router.push("/tasks");
+              }}
+              style={styles.btn}
+            >
               <Text style={styles.btnText}>Go To Task</Text>
             </TouchableOpacity>
             <View style={styles.bodyGap} />
