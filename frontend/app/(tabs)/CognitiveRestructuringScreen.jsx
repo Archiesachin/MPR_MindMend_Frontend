@@ -91,7 +91,7 @@ const CognitiveRestructuringScreen = ({ navigation }) => {
 
       {/* Game Title & Description */}
       <View style={styles.titleContainer}>
-        <Text style={styles.gameTitle}>Cognitive Restructuring Game</Text>
+        <Text style={styles.gameTitle}>CBT Lingo</Text>
         <Text style={styles.gameDescription}>
           Train your mind to recognize and replace negative thoughts with positive ones.
         </Text>

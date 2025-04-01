@@ -6,6 +6,7 @@ import profile from '../../assets/icons/profile.png';
 import play from '../../assets/icons/play.png';
 import tasks from '../../assets/icons/planning.png';
 import journal from '../../assets/icons/diary.png';
+import therapist from '../../assets/images/therapist.png'
 
 const TabIcon = ({ icon, color, name, focused }) => {
     return (
@@ -91,6 +92,17 @@ const TabsLayout = () => {
                     headerShown: false,
                     tabBarIcon: ({ color, focused }) => (
                         <TabIcon icon={profile} color={color} name='Profile' focused={focused} />
+                    )
+                }}
+            />
+
+<Tabs.Screen
+                name='Therapists'
+                options={{
+                    title: 'Therapists',
+                    headerShown: false,
+                    tabBarIcon: ({ color, focused }) => (
+                        <TabIcon icon={therapist} color={color} name='Therapists' focused={focused} />
                     )
                 }}
             />
