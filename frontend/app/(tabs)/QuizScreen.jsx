@@ -13,6 +13,7 @@ import {
 import logo from "../../assets/images/logo-circle.png";
 import background from "../../assets/images/new-background.jpg";
 import { FontAwesome } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 const questions = [
   "The idea that someone else controls your thoughts",
@@ -68,13 +69,17 @@ const QuizScreen = () => {
     const newResponses = [...responses];
     newResponses[currentQuestion] = value;
     setResponses(newResponses);
-
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    } else {
-      getTopDisorders();
-    }
+  
+    // Briefly highlight the selected option before moving to the next question
+    setTimeout(() => {
+      if (currentQuestion < questions.length - 1) {
+        setCurrentQuestion(currentQuestion + 1);
+      } else {
+        getTopDisorders();
+      }
+    }, 300); // 300ms delay to show the selected color
   };
+  
 
   const calculateScores = () => {
     let disorderScores = {};
@@ -94,19 +99,24 @@ const QuizScreen = () => {
     setModalVisible(true);
   };
 
+  const route = useRouter()
+
   return (
     <ImageBackground source={background} style={styles.background} resizeMode="cover">
       <View style={styles.container}>
         <View style={styles.header}>
           <Image source={logo} resizeMode="contain" style={styles.icon} />
           <Text style={styles.appName}>MindMend</Text>
-          <TouchableOpacity style={{ marginRight: 10 }}>
-            <FontAwesome name="ellipsis-v" size={24} color="black" />
+          <TouchableOpacity style={{ marginRight: 10 }} onPress={() => router.push('/profile')}>
+              <Text style={styles.back}>Back</Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={styles.content}>
           <Text style={styles.title}>Mental Health Quiz</Text>
+          <Text style={styles.desc}>A self-report questionnaire designed to evaluate the severity of depression by providing a quantitative measure of depressive symptoms. 
+          </Text>
+          <Text style={styles.desc}>For each question, select one option from a scale of 0 to 4 based on how much you agree with the statement, with 0 indicating no agreement and 4 indicating strong agreement.</Text>
 
           <View style={styles.questionContainer}>
             <Text style={styles.questionText}>{`${currentQuestion + 1}. ${
@@ -180,6 +190,9 @@ const styles = StyleSheet.create({
     color: "#000", 
     flex: 1 
   },
+  back:{
+    fontSize:15,
+  },
   content: {
     flexGrow: 1,
     justifyContent: "center",
@@ -190,6 +203,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
+  },
+  desc:{
+    paddingBottom: 20
   },
   questionContainer: {
     padding: 20,
@@ -216,8 +232,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   selectedOption: {
-    backgroundColor: "#b5e2fa",
+    backgroundColor: "#b5e2fa", // Green color to indicate selection
+    transform: [{ scale: 1.1 }], // Slightly enlarge the selected option
+
   },
+  
   optionText: {
     fontSize: 16,
     fontWeight: "bold",
@@ -238,8 +257,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
+    padding:5
   },
   modalText: {
     fontSize: 16,
+    padding: 5,
+    marginBottom: 10
   },
 });

@@ -58,8 +58,9 @@ const Profile = () => {
   }, []);
 
   const handleTestPress = () => {
-    navigation.navigate("QuizScreen", { setTestResults });
+    navigation.navigate("QuizScreen", { onTestComplete: setTestResults });
   };
+  
 
   return (
     <ImageBackground source={background} style={styles.background} resizeMode="cover">
@@ -85,14 +86,15 @@ const Profile = () => {
         </View>
 
         <TouchableOpacity onPress={handleTestPress} style={styles.cardContainer}>
-          <View style={styles.card}>
-            <Text style={styles.cardText}>
-              {testResults
-                ? `Detected Disorders: ${testResults.disorders.join(", ")}. Score: ${testResults.score}`
-                : "Take this test to assess your mental well-being and get insights!"}
-            </Text>
-          </View>
-        </TouchableOpacity>
+        <View style={styles.card}>
+          <Text style={styles.cardText}>
+            {testResults
+              ? `Detected Disorders: ${testResults.disorders.join(", ")}. Score: ${testResults.score}`
+              : "Click here to take the test to assess your mental well-being and get insights!"}
+          </Text>
+        </View>
+      </TouchableOpacity>
+
 
         <View style={styles.sliderContainer}>
           <CustomSlider min={1} max={5} step={1} initialValue={3} onValueChange={setMoodScore} />
