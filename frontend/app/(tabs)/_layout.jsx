@@ -102,7 +102,7 @@ const TabsLayout = () => {
                     title: 'Therapists',
                     headerShown: false,
                     tabBarIcon: ({ color, focused }) => (
-                        <TabIcon icon={therapist} color={color} name='Therapists' focused={focused} />
+                        <TabIcon icon={therapist} color={color} name='Therapist' focused={focused} />
                     )
                 }}
             />
