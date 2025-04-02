@@ -16,6 +16,7 @@ import axios from "axios";
 import { API_URL } from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import { useNavigation } from "@react-navigation/native";
+import LineGraph from "../../components/LineGraph";
 
 const Profile = () => {
   const navigation = useNavigation();
@@ -64,6 +65,9 @@ const Profile = () => {
   const handleTestPress = () => {
     navigation.navigate("QuizScreen", { onTestComplete: setTestResults });
   };
+
+
+  const [taskScores, setTaskScores] = useState([2, 1, 3, 2, 0]); // Initial scores
 
   return (
     <ImageBackground
@@ -130,13 +134,7 @@ const Profile = () => {
           </TouchableOpacity>
 
           <View style={styles.sliderContainer}>
-            <CustomSlider
-              min={1}
-              max={5}
-              step={1}
-              initialValue={3}
-              onValueChange={setMoodScore}
-            />
+          <LineGraph taskScores={taskScores} />
           </View>
         </ScrollView>
       </View>
