@@ -5,6 +5,7 @@ import {
   Image,
   ImageBackground,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import logo from "../../assets/images/logo-circle.png";
@@ -24,6 +25,7 @@ const Profile = () => {
     phoneNumber: null,
     age: null,
     gender: "",
+    disorder: [],
     profilePic: require("../../assets/images/profile.png"),
   });
 
@@ -48,7 +50,9 @@ const Profile = () => {
           phoneNumber: info.phoneNumber,
           age: info.age,
           gender: info.gender,
-          profilePic: info.profilePic || require("../../assets/images/profile.png"),
+          disorder: info.disorder,
+          profilePic:
+            info.profilePic || require("../../assets/images/profile.png"),
         });
       } catch (error) {
         console.log("Error fetching user data:", error);
@@ -60,10 +64,13 @@ const Profile = () => {
   const handleTestPress = () => {
     navigation.navigate("QuizScreen", { onTestComplete: setTestResults });
   };
-  
 
   return (
-    <ImageBackground source={background} style={styles.background} resizeMode="cover">
+    <ImageBackground
+      source={background}
+      style={styles.background}
+      resizeMode="cover"
+    >
       <View style={styles.container}>
         <View style={styles.header}>
           <Image source={logo} resizeMode="contain" style={styles.icon} />
@@ -72,33 +79,66 @@ const Profile = () => {
             <FontAwesome name="ellipsis-v" size={24} color="black" />
           </TouchableOpacity>
         </View>
+        <ScrollView>
+          <View style={styles.profileContainer}>
+            <Image source={user.profilePic} style={styles.profileImage} />
+            <Text style={styles.username}>{user.username}</Text>
+          </View>
 
-        <View style={styles.profileContainer}>
-          <Image source={user.profilePic} style={styles.profileImage} />
-          <Text style={styles.username}>{user.username}</Text>
-        </View>
+          <View style={styles.infoContainer}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Email:</Text>
+              <Text style={styles.infoValue}>{user.email}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Phone:</Text>
+              <Text style={styles.infoValue}>{user.phoneNumber}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Age:</Text>
+              <Text style={styles.infoValue}>{user.age}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Gender:</Text>
+              <Text style={styles.infoValue}>{user.gender}</Text>
+            </View>
+          </View>
 
-        <View style={styles.infoContainer}>
-          <View style={styles.infoRow}><Text style={styles.infoLabel}>Email:</Text><Text style={styles.infoValue}>{user.email}</Text></View>
-          <View style={styles.infoRow}><Text style={styles.infoLabel}>Phone:</Text><Text style={styles.infoValue}>{user.phoneNumber}</Text></View>
-          <View style={styles.infoRow}><Text style={styles.infoLabel}>Age:</Text><Text style={styles.infoValue}>{user.age}</Text></View>
-          <View style={styles.infoRow}><Text style={styles.infoLabel}>Gender:</Text><Text style={styles.infoValue}>{user.gender}</Text></View>
-        </View>
+          <TouchableOpacity
+            onPress={handleTestPress}
+            style={styles.cardContainer}
+          >
+            <View style={styles.card}>
+              <Text style={styles.cardText}>
+                {user.disorder.length > 0 ? (
+                  <Text style={{ textAlign: "left" }}>
+                    Your disorders:{"\n"}
+                    {user.disorder.length > 0
+                      ? user.disorder.map((d) => (
+                          <Text key={d.score} style={{ padding: 5 }}>
+                            {d.disorder}: {d.score}
+                            {"\n"}
+                          </Text>
+                        ))
+                      : "No disorders detected."}
+                  </Text>
+                ) : (
+                  "Click here to take the test to assess your mental well-being and get insights!"
+                )}
+              </Text>
+            </View>
+          </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleTestPress} style={styles.cardContainer}>
-        <View style={styles.card}>
-          <Text style={styles.cardText}>
-            {testResults
-              ? `Detected Disorders: ${testResults.disorders.join(", ")}. Score: ${testResults.score}`
-              : "Click here to take the test to assess your mental well-being and get insights!"}
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-
-        <View style={styles.sliderContainer}>
-          <CustomSlider min={1} max={5} step={1} initialValue={3} onValueChange={setMoodScore} />
-        </View>
+          <View style={styles.sliderContainer}>
+            <CustomSlider
+              min={1}
+              max={5}
+              step={1}
+              initialValue={3}
+              onValueChange={setMoodScore}
+            />
+          </View>
+        </ScrollView>
       </View>
     </ImageBackground>
   );

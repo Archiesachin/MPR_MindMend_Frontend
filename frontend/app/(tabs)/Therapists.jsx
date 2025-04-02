@@ -52,9 +52,9 @@ const Therapists = () => {
         node(around:15000,${lat},${lng})["healthcare"~"psychotherapist|psychology|psychiatry|mental_health"];
         node(around:15000,${lat},${lng})["amenity"~"clinic"]["healthcare"="mental_health"];
         node(around:15000,${lat},${lng})["office"="therapist"];
-       
+
       );
-      out;  
+      out;
     `;
 
       const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(
