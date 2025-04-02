@@ -154,6 +154,14 @@ const TabsLayout = () => {
   }}
 />
 
+<Tabs.Screen
+  name="QuizScreen"
+  options={{
+    headerShown: false,
+    href: null,  // This completely hides the tab
+  }}
+/>
+
 
 
         </Tabs>

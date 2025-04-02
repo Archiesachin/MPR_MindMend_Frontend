@@ -14,8 +14,10 @@ import CustomSlider from "../../components/CustomSlider";
 import axios from "axios";
 import { API_URL } from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
+import { useNavigation } from "@react-navigation/native";
 
 const Profile = () => {
+  const navigation = useNavigation();
   const [user, setUser] = useState({
     username: "",
     email: "",
@@ -24,6 +26,9 @@ const Profile = () => {
     gender: "",
     profilePic: require("../../assets/images/profile.png"),
   });
+
+  const [testResults, setTestResults] = useState(null);
+  const [moodScore, setMoodScore] = useState(3);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,8 +50,6 @@ const Profile = () => {
           gender: info.gender,
           profilePic: info.profilePic || require("../../assets/images/profile.png"),
         });
-
-        console.log("User data:", user);
       } catch (error) {
         console.log("Error fetching user data:", error);
       }
@@ -54,16 +57,13 @@ const Profile = () => {
     fetchData();
   }, []);
 
-  const [moodScore, setMoodScore] = useState(3); // Hardcoded initial value
+  const handleTestPress = () => {
+    navigation.navigate("QuizScreen", { setTestResults });
+  };
 
   return (
-    <ImageBackground
-      source={background} // Update the path as per your folder structure
-      style={styles.background}
-      resizeMode="cover"
-    >
+    <ImageBackground source={background} style={styles.background} resizeMode="cover">
       <View style={styles.container}>
-        {/* Header */}
         <View style={styles.header}>
           <Image source={logo} resizeMode="contain" style={styles.icon} />
           <Text style={styles.appName}>MindMend</Text>
@@ -72,39 +72,30 @@ const Profile = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Profile Info */}
         <View style={styles.profileContainer}>
           <Image source={user.profilePic} style={styles.profileImage} />
           <Text style={styles.username}>{user.username}</Text>
         </View>
 
-        {/* User Details */}
         <View style={styles.infoContainer}>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Email:</Text>
-            <Text style={styles.infoValue}>{user.email}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Phone:</Text>
-            <Text style={styles.infoValue}>{user.phoneNumber}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Age:</Text>
-            <Text style={styles.infoValue}>{user.age}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Gender:</Text>
-            <Text style={styles.infoValue}>{user.gender}</Text>
-          </View>
+          <View style={styles.infoRow}><Text style={styles.infoLabel}>Email:</Text><Text style={styles.infoValue}>{user.email}</Text></View>
+          <View style={styles.infoRow}><Text style={styles.infoLabel}>Phone:</Text><Text style={styles.infoValue}>{user.phoneNumber}</Text></View>
+          <View style={styles.infoRow}><Text style={styles.infoLabel}>Age:</Text><Text style={styles.infoValue}>{user.age}</Text></View>
+          <View style={styles.infoRow}><Text style={styles.infoLabel}>Gender:</Text><Text style={styles.infoValue}>{user.gender}</Text></View>
         </View>
+
+        <TouchableOpacity onPress={handleTestPress} style={styles.cardContainer}>
+          <View style={styles.card}>
+            <Text style={styles.cardText}>
+              {testResults
+                ? `Detected Disorders: ${testResults.disorders.join(", ")}. Score: ${testResults.score}`
+                : "Take this test to assess your mental well-being and get insights!"}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
         <View style={styles.sliderContainer}>
-          <CustomSlider
-            min={1}
-            max={5}
-            step={1}
-            initialValue={3}
-            onValueChange={setMoodScore}
-          />
+          <CustomSlider min={1} max={5} step={1} initialValue={3} onValueChange={setMoodScore} />
         </View>
       </View>
     </ImageBackground>
@@ -121,7 +112,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.2)", // Optional: Semi-transparent overlay
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   header: {
     flexDirection: "row",
@@ -135,17 +126,11 @@ const styles = StyleSheet.create({
     width: 60,
     marginRight: 10,
   },
-
   appName: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#000",
     flex: 1,
-  },
-  headerText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#fff",
   },
   profileContainer: {
     alignItems: "center",
@@ -171,25 +156,42 @@ const styles = StyleSheet.create({
   },
   infoRow: {
     flexDirection: "row",
-    justifyContent: "flex-start", // Align content to the start
-    alignItems: "center", // Center align items vertically
+    justifyContent: "flex-start",
+    alignItems: "center",
     paddingVertical: 8,
   },
   infoLabel: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#333",
-    width: 80, // Fixed width to keep alignment consistent
+    width: 80,
   },
   infoValue: {
     fontSize: 16,
     color: "#555",
-    flex: 1, // Ensures it takes remaining space and aligns left
+    flex: 1,
     textAlign: "left",
   },
-
+  cardContainer: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  card: {
+    padding: 15,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  cardText: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "#333",
+    fontWeight: "bold",
+  },
   sliderContainer: {
     marginTop: 20,
-    // alignItems:'center'
   },
 });
