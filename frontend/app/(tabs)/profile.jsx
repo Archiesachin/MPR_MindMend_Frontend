@@ -52,7 +52,7 @@ const Profile = () => {
           phoneNumber: info.phoneNumber,
           age: info.age,
           gender: info.gender,
-          disorder: disorder,
+          disorder: info.disorder,
           profilePic:
             info.profilePic || require("../../assets/images/profile.png"),
         });
@@ -92,7 +92,7 @@ const Profile = () => {
   };
 
 
-  const [taskScores, setTaskScores] = useState([2, 1, 3, 2, 0]); // Initial scores
+  const [taskScores, setTaskScores] = useState([]); // Initial scores
 
   return (
     <ImageBackground
@@ -160,6 +160,7 @@ const Profile = () => {
 
           <View style={styles.sliderContainer}>
           <LineGraph taskScores={taskScores} />
+          <BarGraph distortionData={user.disorder}/>
           </View>
         </ScrollView>
       </View>
