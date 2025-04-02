@@ -44,6 +44,8 @@ const Profile = () => {
         });
 
         const info = data.user;
+        let disorder = [];
+        if (info.disorder) disorder = info.disorder;
 
         setUser({
           username: info.fullName,
@@ -51,7 +53,7 @@ const Profile = () => {
           phoneNumber: info.phoneNumber,
           age: info.age,
           gender: info.gender,
-          disorder: info.disorder,
+          disorder: disorder,
           profilePic:
             info.profilePic || require("../../assets/images/profile.png"),
         });
@@ -62,12 +64,35 @@ const Profile = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const fetchRatings = async () => {
+      try {
+        const token = await SecureStore.getItemAsync("token");
+        const { data } = await axios.get(`${API_URL}/api/tasks`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const ratings = data.tasks.map((task) => {
+          if (task.rating) return task.rating;
+          else return 0; // Default value if rating is not available
+        });
+        console.log("Ratings:", ratings);
+
+        setTaskScores(ratings);
+      } catch (error) {
+        console.log("Error fetching ratings:", error);
+      }
+    };
+    fetchRatings();
+  }, []);
+
   const handleTestPress = () => {
     navigation.navigate("QuizScreen", { onTestComplete: setTestResults });
   };
 
-
-  const [taskScores, setTaskScores] = useState([2, 1, 3, 2, 0]); // Initial scores
+  const [taskScores, setTaskScores] = useState([]); // Initial scores
 
   return (
     <ImageBackground
@@ -134,7 +159,7 @@ const Profile = () => {
           </TouchableOpacity>
 
           <View style={styles.sliderContainer}>
-          <LineGraph taskScores={taskScores} />
+            <LineGraph taskScores={taskScores} />
           </View>
         </ScrollView>
       </View>
