@@ -11,13 +11,12 @@ import React, { useState, useEffect } from "react";
 import logo from "../../assets/images/logo-circle.png";
 import background from "../../assets/images/new-background.jpg";
 import { FontAwesome } from "@expo/vector-icons";
-import CustomSlider from "../../components/CustomSlider";
 import axios from "axios";
 import { API_URL } from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import { useNavigation } from "@react-navigation/native";
 import LineGraph from "../../components/LineGraph";
-
+import BarGraph from "../../components/BarGraph";
 const Profile = () => {
   const navigation = useNavigation();
   const [user, setUser] = useState({
@@ -68,6 +67,10 @@ const Profile = () => {
 
 
   const [taskScores, setTaskScores] = useState([2, 1, 3, 2, 0]); // Initial scores
+
+  const [distortions, setDistortions] = useState(["Shoulds", "Hevens Fallacy", "OverGeneralization"]);
+
+
 
   return (
     <ImageBackground
@@ -135,6 +138,7 @@ const Profile = () => {
 
           <View style={styles.sliderContainer}>
           <LineGraph taskScores={taskScores} />
+          <BarGraph distortionData={distortions} />
           </View>
         </ScrollView>
       </View>
