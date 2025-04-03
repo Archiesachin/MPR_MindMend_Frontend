@@ -50,7 +50,7 @@ export default function JournalApp() {
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={styles.entryList}>
+        <View style={styles.entryList}>
           <Text style={styles.heading}>All Notes</Text>
 
           {/* Journal Entries Grid */}
@@ -68,7 +68,7 @@ export default function JournalApp() {
               </TouchableOpacity>
             )}
           />
-        </ScrollView>
+        </View>
 
         {/* Floating Add Button */}
         <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>

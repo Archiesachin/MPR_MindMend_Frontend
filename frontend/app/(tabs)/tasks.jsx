@@ -132,7 +132,7 @@ const Tasks = () => {
         <ScrollView style={styles.scrollContainer}>
           {summary ? <Text style={styles.summary}>{summary}</Text> : null}
         </ScrollView>
-        <CustomSlider min={0} max={3} step={1} value={moodScore} />;
+        <CustomSlider min={0} max={3} step={1} value={moodScore} />
       </View>
     </ImageBackground>
   );
