@@ -12,13 +12,55 @@ import {
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import { SafeAreaView } from "react-native";
-import logo from "../../assets/images/logo-circle.png"; // Adjust the path as needed
+import logo from "../../assets/images/logo-circle.png";
 import background from "../../assets/images/new-background.jpg";
 import { FontAwesome } from "@expo/vector-icons";
 
+const predefinedTherapists = [
+  {
+    id: 1,
+    name: "Amaha Mental Health Centre, Mumbai",
+    lat: 19.054786,
+    lng: 72.839978,
+    address: "Mumbai, India",
+    googleUrl: "https://www.google.com/search?q=Amaha+Mental+Health+Centre+Mumbai",
+  },
+  {
+    id: 2,
+    alt_name: "Better Self - Best Psychological Wellness Center",
+    lat: 19.060035,
+    lng: 72.823594,
+    address: "Mumbai, India",
+    googleUrl: "https://www.google.com/search?q=Better+Self+Psychological+Wellness+Center",
+  },
+  {
+    id: 3,
+    alt_name: "Shrradha Sidhwani - Counselling Psychologist",
+    lat: 40.525143,
+    lng: -80.701421,
+    address: "USA",
+    googleUrl: "https://www.google.com/search?q=Shrradha+Sidhwani+Counselling+Psychologist",
+  },
+  {
+    id: 4,
+    alt_name: "Dr. Alisha Lalljee",
+    lat: 19.064127,
+    lng: 72.829925,
+    address: "Mumbai, India",
+    googleUrl: "https://www.google.com/search?q=Dr+Alisha+Lalljee",
+  },
+  {
+    id: 5,
+    alt_name: "Jaanvi Java | Psychologist in Bandra",
+    lat: 19.065325,
+    lng: 72.831737,
+    address: "Bandra, Mumbai, India",
+    googleUrl: "https://www.google.com/search?q=Jaanvi+Java+Psychologist+Bandra",
+  },
+];
+
 const Therapists = () => {
   const [location, setLocation] = useState(null);
-  const [therapists, setTherapists] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -33,62 +75,12 @@ const Therapists = () => {
 
       let userLocation = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = userLocation.coords;
-
-      // ✅ Log the user's coordinates to the console
-      console.log("User's Current Location:", { latitude, longitude });
-
       setLocation({ latitude, longitude });
-      fetchNearbyTherapists(latitude, longitude);
     })();
   }, []);
 
-  const fetchNearbyTherapists = async (lat, lng) => {
-    try {
-      console.log("Fetching therapists near:", lat, lng); // ✅ Log fetched location for debugging
-
-      const overpassQuery = `
-      [out:json];
-      (
-        node(around:15000,${lat},${lng})["healthcare"~"psychotherapist|psychology|psychiatry|mental_health"];
-        node(around:15000,${lat},${lng})["amenity"~"clinic"]["healthcare"="mental_health"];
-        node(around:15000,${lat},${lng})["office"="therapist"];
-
-      );
-      out;
-    `;
-
-      const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(
-        overpassQuery
-      )}`;
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.elements) {
-        setTherapists(
-          data.elements.map((item) => ({
-            id: item.id,
-            name: item.tags.alt_name || "Therapist",
-            lat: item.lat,
-            lng: item.lon,
-            address: item.tags["addr:full"] || "No address available",
-            googleUrl: `https://www.google.com/search?q=${encodeURIComponent(
-              item.tags.alt_name || "therapist"
-            )}`,
-          }))
-        );
-        console.log("Therapists Data:", data.elements); // ✅ Log therapist data
-      }
-    } catch (error) {
-      console.error("Error fetching therapists:", error);
-    }
-  };
-
   return (
-    <ImageBackground
-      source={background} // Update the path as per your folder structure
-      style={styles.background}
-      resizeMode="cover"
-    >
+    <ImageBackground source={background} style={styles.background} resizeMode="cover">
       <View style={styles.container}>
         <View style={styles.header}>
           <Image source={logo} resizeMode="contain" style={styles.icon} />
@@ -109,22 +101,13 @@ const Therapists = () => {
               }}
               showsUserLocation={true}
             >
-              {/* Blue Marker for User's Location */}
-              <Marker
-                coordinate={location}
-                title="Your Location"
-                pinColor="blue"
-              />
+              <Marker coordinate={location} title="Your Location" pinColor="blue" />
 
-              {/* Red Markers for Therapists */}
-              {therapists.map((therapist) => (
+              {predefinedTherapists.map((therapist) => (
                 <Marker
                   key={therapist.id}
-                  coordinate={{
-                    latitude: therapist.lat,
-                    longitude: therapist.lng,
-                  }}
-                  title={therapist.name}
+                  coordinate={{ latitude: therapist.lat, longitude: therapist.lng }}
+                  title={therapist.alt_name}
                   description={therapist.address}
                   pinColor="red"
                   onPress={() => Linking.openURL(therapist.googleUrl)}
@@ -148,7 +131,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.2)", // Optional: Semi-transparent overlay
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   header: {
     flexDirection: "row",
@@ -162,7 +145,6 @@ const styles = StyleSheet.create({
     width: 60,
     marginRight: 10,
   },
-
   appName: {
     fontSize: 18,
     fontWeight: "bold",

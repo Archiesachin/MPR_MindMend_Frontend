@@ -31,6 +31,7 @@ const Profile = () => {
 
   const [testResults, setTestResults] = useState(null);
   const [moodScore, setMoodScore] = useState(3);
+  const [distorions, setDistorions] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,7 +53,7 @@ const Profile = () => {
           phoneNumber: info.phoneNumber,
           age: info.age,
           gender: info.gender,
-          disorder: info.disorder,
+          disorder: disorder,
           profilePic:
             info.profilePic || require("../../assets/images/profile.png"),
         });
@@ -87,10 +88,27 @@ const Profile = () => {
     fetchRatings();
   }, []);
 
+  useEffect(() => {
+    const fetchDistortions = async () => {
+      try {
+        const token = await SecureStore.getItemAsync("token");
+        const { data } = await axios.get(`${API_URL}/api/distortions`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("Distortions:", data.distortions);
+        setDistorions(data.distortions);
+      } catch (error) {
+        console.log("Error fetching distortions:", error);
+      }
+    };
+    fetchDistortions();
+  }, []);
+
   const handleTestPress = () => {
     navigation.navigate("QuizScreen", { onTestComplete: setTestResults });
   };
-
 
   const [taskScores, setTaskScores] = useState([]); // Initial scores
 
@@ -159,8 +177,30 @@ const Profile = () => {
           </TouchableOpacity>
 
           <View style={styles.sliderContainer}>
-          <LineGraph taskScores={taskScores} />
-          <BarGraph distortionData={user.disorder}/>
+            <LineGraph taskScores={taskScores} />
+
+            <View style={styles.distortionContainer}>
+              <Text style={styles.sectionTitle}>Cognitive Distortions</Text>
+              {distorions.length > 0 ? (
+                <ScrollView style={styles.distortionList}>
+                  {distorions.map((distortion, index) => (
+                    <Text key={index} style={styles.distortionItem}>
+                      {index + 1}. {distortion}
+                    </Text>
+                  ))}
+                </ScrollView>
+              ) : (
+                <Text style={styles.noDistortions}>
+                  No distortions detected.
+                </Text>
+              )}
+
+              {/* Display Distortion Count */}
+              <Text style={styles.distortionCount}>
+                Total Distortions: {distorions.length}
+              </Text>
+            </View>
+            {/* <BarGraph distortionData={distorions} /> */}
           </View>
         </ScrollView>
       </View>
@@ -259,5 +299,43 @@ const styles = StyleSheet.create({
   },
   sliderContainer: {
     marginTop: 20,
+  },
+
+  distortionContainer: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  distortionList: {
+    maxHeight: 150, // Scrollable list height
+  },
+  distortionItem: {
+    fontSize: 16,
+    paddingVertical: 5,
+    color: "#333",
+  },
+  noDistortions: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#888",
+  },
+  distortionCount: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 10,
   },
 });
