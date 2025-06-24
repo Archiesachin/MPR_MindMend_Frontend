@@ -9,18 +9,10 @@ To ensure users stay on track, MindMend includes progress tracking tools that vi
 
 ## Frontend
 
-![chatbot](https://github.com/user-attachments/assets/ca4a5e35-2a35-49ec-bcac-16ba52c213d5)
-
-![task](https://github.com/user-attachments/assets/accd62fc-8ae3-4db6-b539-fec91b3d6ce3)
+![AI Chatbot with CBT (1)](https://github.com/user-attachments/assets/fea26325-1e86-44ae-a0d0-0ae65cc5b512)
 
 
-![Untitled design (2)](https://github.com/user-attachments/assets/c2ed522b-c0f1-4bd5-aefe-1dc98caf3393)
-
-
-![profile 1](https://github.com/user-attachments/assets/0102dd49-c829-4413-9c1f-46eb7a583ff7)
-
-
-
+![Interactive Tools](https://github.com/user-attachments/assets/b9c9748f-dfe9-4985-aab6-6b6a97e99bfb)
 
 
 
